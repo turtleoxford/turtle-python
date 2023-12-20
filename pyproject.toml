@@ -2,18 +2,18 @@
 name = "turtle_oxford"
 version = "0.1.0"
 description = "Python module for the Turtle System (https://www.turtle.ox.ac.uk/)"
-authors = ["Your Name <you@example.com>"]
+authors = ["Turtle Oxford <turtlehertford@gmail.com>"]
 readme = "README.md"
 license = "GPL-3.0-or-later"
 packages = [
-    { include = "turtle_oxford.py" },
+    { include = "*" },
 ]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 tk = "^0.1.0"
-pytest = "^7.4.3"
-
+pillow = "^10.1.0"
+logging = "^0.4.9.6"
 
 [build-system]
 requires = ["poetry-core"]
