@@ -32,6 +32,8 @@ class TurtleCanvas:
     _kshift: int = 128
     # Possible values: 1, -1 (pressed and released respectively)
     _pressed_keys: dict[str, int] = {}
+    _mousex: int = -1
+    _mousey: int = -1
 
     def create(
         self,
@@ -304,6 +306,7 @@ def get_key_code() -> int:
 
 def on_key_press(event: Event):
     TurtleCanvas._key_code = event.keycode
+    # This preserves the case for letters and removes the _L and _R from modifiers keys
     TurtleCanvas._key_sym = event.keysym.split("_")[0]
     TurtleCanvas._pressed_keys[TurtleCanvas._key_sym] = 1
     TurtleCanvas._pressed_keys["key"] = 1
@@ -336,5 +339,9 @@ def detect(key_sym, timeout):
 def get_key_status(key_sym):
     return TurtleCanvas._pressed_keys.get(key_sym, 0)
 
-def forget_key(key_sym):
-    TurtleCanvas._pressed_keys[key_sym] = 0
+def reset(key_sym: str):
+    if key_sym == "mouse":
+        TurtleCanvas._mousex = -1
+        TurtleCanvas._mousey = -1
+    else:
+        TurtleCanvas._pressed_keys[key_sym] = 0

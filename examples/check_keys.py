@@ -48,9 +48,6 @@ with turtle_canvas(0, 0, 1000, 1000) as t:
         display(displayed_letter, 3, 450)
         display(displayed_letter, 3, 450)
         # wait for user to type that letter, with shift down for uppercase
-        shiftok = False
-        forget_key(letter)
-        forget_key("Shift")
         if not lowercase:
             detect("Shift", 0)
         detect(displayed_letter, 0)
