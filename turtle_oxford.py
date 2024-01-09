@@ -44,6 +44,8 @@ class TurtleCanvas:
     _kshift: int = 128
     # Possible values: +kshift, -kshift (pressed and released respectively)
     _pressed_keys: dict[str, int] = {}
+    _mousex: int = -1
+    _mousey: int = -1
 
     def create(
         self,
