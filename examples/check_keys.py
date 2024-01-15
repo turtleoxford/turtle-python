@@ -1,3 +1,4 @@
+#!/bin/python3
 import time
 from turtle_oxford import *
 from random import randrange, randint

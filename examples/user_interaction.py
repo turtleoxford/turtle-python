@@ -1,3 +1,4 @@
+#!/bin/python3
 from turtle_oxford import *
 
 with turtle_canvas() as t:
