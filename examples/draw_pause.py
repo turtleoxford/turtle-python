@@ -1,8 +1,8 @@
+#!/bin/python3
 from turtle_oxford import *
 
-with turtle_canvas() as t:
+with turtle_canvas(0, 0, 1000, 1000) as t:
     # draw green blot radius 100, then pause
-    resolution(1000, 1000)
     colour("green")
     blot(100)
     pause(1000)
