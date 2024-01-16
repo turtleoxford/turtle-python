@@ -69,7 +69,6 @@ with turtle_canvas(xstart, ystart, pixels, pixels) as t:
                 y = (2*x) / scale * y + b
                 x = temp + a                      # Otherwise, calculate next point (x,y) in series
                 iterations += 1
-            print(f"hypot: {math.hypot(x,y)} out of {2 * scale}")
             if iterations > maxcol:           # If series hasn't diverged after MAXCOL, point, then
                 pixset(a,b,"black")             # (a,b) - the starting point - is coloured black
             else:

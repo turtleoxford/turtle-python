@@ -4,7 +4,8 @@ import math
 from PIL import ImageColor
 from time import sleep
 from tkinter import *
-
+from constants import *
+import random
 
 class TurtleCanvas:
     # Turtle vars
@@ -358,6 +359,16 @@ def blank(colour) -> int:
     )
     return r
 
+
+@draw
+# If boundry is a negative number, then any colour is acceptable
+def fill(x: int, y: int, boundry: int | str):
+    if boundry.isinstance(str):
+        boundry = colour_to_int(boundry)
+    initcol = pixcol(x, y)
+    
+
+
 # get information about the canvas
 def pixcol(x: int, y: int) -> int:
     ids = TurtleCanvas._canvas.find_overlapping(
@@ -426,3 +437,10 @@ def reset(key_sym: str):
         TurtleCanvas._mousey = -1
     else:
         TurtleCanvas._pressed_keys[key_sym] = 0
+
+# non-canvas operations
+def randcol(n: int) -> int:
+    return colour_list[random.randint(0, n - 1)]
+
+def rgb(n: int) -> int:
+    return colour_list[n]
