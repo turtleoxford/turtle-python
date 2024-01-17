@@ -418,7 +418,6 @@ def fill(x: int, y: int, boundry: int | str):
         boundry = colour_to_int(boundry)
     initcol = pixcol(x, y)
 
-
 # get information about the canvas
 def pixcol(x: int, y: int) -> int:
     ids = TurtleCanvas._canvas.find_overlapping(
@@ -437,7 +436,6 @@ def pixcol(x: int, y: int) -> int:
     # All items overlapping the pixel are transparent
     return white
 
-
 def get_key_sym() -> str:
     return TurtleCanvas._key_sym
 
@@ -448,6 +446,8 @@ def get_key_code() -> int:
 
 # user interactions
 
+def on_press(event: Event):
+    TurtleCanvas._kshift = 128
 
 def on_press(event: Event):
     TurtleCanvas._kshift = 128
@@ -491,7 +491,6 @@ def on_release(event: Event):
         TurtleCanvas._pressed_keys["click"] *= -1
     TurtleCanvas._pressed_keys["mousekey"] *= -1
 
-
 def detect(key_sym, timeout) -> str:
     rounds = timeout / 100
     if timeout == 0:
@@ -506,7 +505,6 @@ def detect(key_sym, timeout) -> str:
         TurtleCanvas._pressed_keys[key_sym] = status
         return ""
     return get_key_sym()
-
 
 # Returns 0 for a key that was never pressed, kshift for one currently pressed and -kshift for one that was released
 def status(key_sym: str):
@@ -554,7 +552,6 @@ def randcol(n: int) -> int:
 def rgb(n: int) -> int:
     return colour_list[n]
 
-
 def mixcols(col1: int | str, col2: int | str, prop1: int, prop2: int) -> int:
     col1 = colour_to_int(col1)
     col2 = colour_to_int(col2)
@@ -579,7 +576,6 @@ def delete(s: str, idx: int, l: int) -> str:
 
 def pad(s: str, padding: string, length: int) -> str:
     return s.ljust(length, padding)
-
 
 def intdef(s, default: int) -> int:
     try:
