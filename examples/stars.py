@@ -37,7 +37,7 @@ with turtle_canvas(0, 0, 1000, 1000) as t:
     # draw stars with increasing points
     for n in range(3, 13):
         # each star is a different colour
-        col = randint(0, 0xffffff)
+        col = randint(0, 0xFFFFFF)
         star(n, col)
         # pause to enable each to be seen
         pause(500)

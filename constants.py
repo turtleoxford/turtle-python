@@ -1,5 +1,5 @@
 # Colours
-white = 0xffffff
+white = 0xFFFFFF
 black = 0x000000
 
 green = 0x228B22
@@ -51,10 +51,55 @@ midgrey = 0x808080
 lightgrey = 0xA0A0A0
 silver = 0xC0C0C0
 
-colour_list = [green, red, blue, yellow, violet, lime, orange, skyblue,
-             brown, pink, darkgreen, darkred, darkblue, ochre, indigo, olive,
-             orangered, teal, darkbrown, magenta, lightgreen, lightred, lightblue,
-             cream, lilac, yellowgreen, peach, cyan, lightbrown, lightpink, seagreen,
-             maroon, royal, gold, purple, emerald, salmon, turquoise, coffee, rose,
-             greengrey, redgrey, bluegrey, yellowgrey, darkgrey, midgrey, lightgrey,
-             silver, white, black]
+colour_list = [
+    green,
+    red,
+    blue,
+    yellow,
+    violet,
+    lime,
+    orange,
+    skyblue,
+    brown,
+    pink,
+    darkgreen,
+    darkred,
+    darkblue,
+    ochre,
+    indigo,
+    olive,
+    orangered,
+    teal,
+    darkbrown,
+    magenta,
+    lightgreen,
+    lightred,
+    lightblue,
+    cream,
+    lilac,
+    yellowgreen,
+    peach,
+    cyan,
+    lightbrown,
+    lightpink,
+    seagreen,
+    maroon,
+    royal,
+    gold,
+    purple,
+    emerald,
+    salmon,
+    turquoise,
+    coffee,
+    rose,
+    greengrey,
+    redgrey,
+    bluegrey,
+    yellowgrey,
+    darkgrey,
+    midgrey,
+    lightgrey,
+    silver,
+    white,
+    black,
+]
