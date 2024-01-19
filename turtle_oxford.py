@@ -4,6 +4,10 @@ import math
 from PIL import ImageColor
 from time import sleep
 from tkinter import *
+from constants import *
+import random
+import string
+import sys
 
 
 class TurtleCanvas:
@@ -15,6 +19,7 @@ class TurtleCanvas:
     _thick: int = 1
     _colour: str = "white"
     _history: list[tuple[int, int]] = []
+    _old_turtle = []
     # Canvas vars
     _root: Tk | None = None
     _canvas: Canvas | None = None
@@ -31,7 +36,7 @@ class TurtleCanvas:
     _key_code: int = 0
     _key_sym: str = ""
     _kshift: int = 128
-    # Possible values: 1, -1 (pressed and released respectively)
+    # Possible values: +kshift, -kshift (pressed and released respectively)
     _pressed_keys: dict[str, int] = {}
     _mousex: int = -1
     _mousey: int = -1
@@ -48,7 +53,9 @@ class TurtleCanvas:
         TurtleCanvas._root = Tk()
         TurtleCanvas._root.title("Turtle")
 
-        self._frame = Frame(self._root, width=TurtleCanvas._width, height=TurtleCanvas._height+100)
+        self._frame = Frame(
+            self._root, width=TurtleCanvas._width, height=TurtleCanvas._height + 100
+        )
         self._frame.pack(expand=True, fill=BOTH)
         self._halt = Button(self._frame, text="HALT")
         self._halt.pack()
@@ -58,16 +65,17 @@ class TurtleCanvas:
         )
         TurtleCanvas._canvas.pack(side="bottom")
         TurtleCanvas._canvas.focus_set()
-        TurtleCanvas._canvas.bind("<KeyPress>", on_key_press)
-        TurtleCanvas._canvas.bind("<KeyRelease>", on_key_release)
+        TurtleCanvas._canvas.bind("<KeyPress>", on_press)
+        TurtleCanvas._canvas.bind("<KeyRelease>", on_release)
+        TurtleCanvas._canvas.bind("<ButtonPress>", on_press)
+        TurtleCanvas._canvas.bind("<ButtonRelease>", on_release)
 
-        self._halt.bind("<ButtonPress>", lambda e: TurtleCanvas._canvas.mainloop())
+        self._halt.bind("<ButtonRelease>", halt)
 
         TurtleCanvas._origin_x, TurtleCanvas._origin_y = origin_x, origin_y
         TurtleCanvas._home = width / 2, height / 2
         TurtleCanvas._x, TurtleCanvas._y = TurtleCanvas._home
-        #TurtleCanvas._history.append(TurtleCanvas._home)
-
+        # TurtleCanvas._history.append(TurtleCanvas._home)
 
     def refresh():
         if not TurtleCanvas._canvas:
@@ -103,11 +111,12 @@ def resolution(x: int, y: int):
     TurtleCanvas._y_multiplier = TurtleCanvas._height / y
     TurtleCanvas._canvas.scale(
         "all",
-        0, 
+        0,
         0,
         TurtleCanvas._x_multiplier,
         TurtleCanvas._y_multiplier,
     )
+
 
 # Define a decorator for the movement functions which handles the moving boilerplate
 def move(func: callable) -> callable:
@@ -115,11 +124,13 @@ def move(func: callable) -> callable:
         val = func(*args, **kwargs)
         TurtleCanvas._history.append((TurtleCanvas._x, TurtleCanvas._y))
         return val
+
     return inner
 
 
 def remember():
     TurtleCanvas._history.append((TurtleCanvas._x, TurtleCanvas._y))
+
 
 def forget(n: int):
     for i in range(n):
@@ -130,13 +141,16 @@ def forget(n: int):
 def home():
     setxy(*TurtleCanvas._home)
 
+
 @move
 def setx(x: int):
     TurtleCanvas._x = x
 
+
 @move
 def sety(y: int):
     TurtleCanvas._y = y
+
 
 @move
 def setxy(x: int, y: int):
@@ -194,24 +208,31 @@ def pause(duration: int):
 
 # Change direction
 
+
 def right(degrees: int):
-    TurtleCanvas._direction = (TurtleCanvas._direction - degrees * 360 / TurtleCanvas._angles) % 360
+    TurtleCanvas._direction = (
+        TurtleCanvas._direction - degrees * 360 / TurtleCanvas._angles
+    ) % 360
 
 
 def left(degrees: int):
-    TurtleCanvas._direction = (TurtleCanvas._direction + degrees * 360 / TurtleCanvas._angles) % 360
+    TurtleCanvas._direction = (
+        TurtleCanvas._direction + degrees * 360 / TurtleCanvas._angles
+    ) % 360
 
 
 def direction(degrees: int):
     TurtleCanvas._direction = 360 / TurtleCanvas._angles * degrees
 
+
 # There is little actual support for the custom angles
 def angles(degrees: int):
     TurtleCanvas._angles = degrees
 
+
 def turnxy(x: int, y: int):
     # if y/x = tan t, then t = arctan(y/x)
-    TurtleCanvas._direction = math.degrees(math.atan(y/x))
+    TurtleCanvas._direction = math.degrees(math.atan(y / x))
 
 
 # Draw shapes
@@ -227,12 +248,17 @@ def draw(func: callable) -> callable:
 
     return inner
 
+
 def forward(distance: int) -> int:
-    return movexy(- distance * math.sin(math.radians(TurtleCanvas._direction)),
-                  - distance * math.cos(math.radians(TurtleCanvas._direction)))
+    return movexy(
+        -distance * math.sin(math.radians(TurtleCanvas._direction)),
+        -distance * math.cos(math.radians(TurtleCanvas._direction)),
+    )
+
 
 def back(distance: int) -> int:
-    return forward(- distance)
+    return forward(-distance)
+
 
 @move
 def movexy(x: int, y: int) -> int:
@@ -246,7 +272,8 @@ def movexy(x: int, y: int) -> int:
     TurtleCanvas._y = new_y
     return id
 
-@move      
+
+@move
 def drawxy(x: int, y: int) -> int:
     new_x = TurtleCanvas._x + x
     new_y = TurtleCanvas._y + y
@@ -259,40 +286,58 @@ def drawxy(x: int, y: int) -> int:
 @draw
 def _draw_line(x: int, y: int, new_x: int, new_y: int):
     return TurtleCanvas._canvas.create_line(
-            (x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
-            (y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier,
-            (new_x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
-            (new_y - TurtleCanvas._origin_y) * TurtleCanvas._x_multiplier,
-            fill=TurtleCanvas._colour,
-            width=TurtleCanvas._thick * TurtleCanvas._x_multiplier,
-        )
+        (x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
+        (y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier,
+        (new_x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
+        (new_y - TurtleCanvas._origin_y) * TurtleCanvas._x_multiplier,
+        fill=TurtleCanvas._colour,
+        width=TurtleCanvas._thick * TurtleCanvas._x_multiplier,
+    )
+
 
 @draw
 def blot(size: int) -> int:
     return _oval(size, size, fill=True)
 
+
 @draw
 def circle(size: int) -> int:
     return _oval(size, size, border=True)
+
 
 @draw
 def ellipse(xradius: int, yradius: int) -> int:
     return _oval(xradius, yradius, border=True)
 
-@draw
-def ellblot(xradius:int, yradius: int) -> int:
-    return _oval(xradius, yradius, fill=True) 
 
 @draw
-def _oval(xradius: int, yradius: int, border: bool=False, fill: bool=False) -> int:
-    x1 = (TurtleCanvas._x - xradius - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier
-    y1 = (TurtleCanvas._y - yradius - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier
-    x2 = (TurtleCanvas._x + xradius - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier
-    y2 = (TurtleCanvas._y + yradius - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier
+def ellblot(xradius: int, yradius: int) -> int:
+    return _oval(xradius, yradius, fill=True)
+
+
+@draw
+def _oval(xradius: int, yradius: int, border: bool = False, fill: bool = False) -> int:
+    x1 = (
+        TurtleCanvas._x - xradius - TurtleCanvas._origin_x
+    ) * TurtleCanvas._x_multiplier
+    y1 = (
+        TurtleCanvas._y - yradius - TurtleCanvas._origin_y
+    ) * TurtleCanvas._y_multiplier
+    x2 = (
+        TurtleCanvas._x + xradius - TurtleCanvas._origin_x
+    ) * TurtleCanvas._x_multiplier
+    y2 = (
+        TurtleCanvas._y + yradius - TurtleCanvas._origin_y
+    ) * TurtleCanvas._y_multiplier
     id = -1
     if border:
         id = TurtleCanvas._canvas.create_oval(
-            x1, y1, x2, y2, width=TurtleCanvas._thick * TurtleCanvas._x_multiplier, outline=TurtleCanvas._colour
+            x1,
+            y1,
+            x2,
+            y2,
+            width=TurtleCanvas._thick * TurtleCanvas._x_multiplier,
+            outline=TurtleCanvas._colour,
         )
     if fill:
         id = TurtleCanvas._canvas.create_oval(
@@ -309,18 +354,19 @@ def pixset(x: int, y: int, colour: int) -> int:
         (x - TurtleCanvas._origin_x + 1) * TurtleCanvas._x_multiplier,
         (y - TurtleCanvas._origin_y + 1) * TurtleCanvas._y_multiplier,
         fill=colour_to_str(colour),
-        width=0
+        width=0,
     )
 
+
 @draw
-def box(x: int, y:int, colour: int, border: bool) -> int:
+def box(x: int, y: int, colour: int, border: bool) -> int:
     return TurtleCanvas._canvas.create_rectangle(
         (TurtleCanvas._x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
         (TurtleCanvas._y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier,
         (TurtleCanvas._x - TurtleCanvas._origin_x + x) * TurtleCanvas._x_multiplier,
         (TurtleCanvas._y - TurtleCanvas._origin_y + y) * TurtleCanvas._y_multiplier,
         fill=colour_to_str(colour),
-        width=int(border) * TurtleCanvas._thick
+        width=int(border) * TurtleCanvas._thick,
     )
 
 
@@ -331,32 +377,47 @@ def polyline(n: int):
         _draw_line(x, y, old_x, old_y)
         x, y = old_x, old_y
 
+
 @draw
 def polygon(n: int):
-    TurtleCanvas._canvas.create_polygon(                                        
-        *TurtleCanvas._history[-n:],
-        fill=colour_to_str(TurtleCanvas._colour))
+    TurtleCanvas._canvas.create_polygon(
+        *TurtleCanvas._history[-n:], fill=colour_to_str(TurtleCanvas._colour)
+    )
 
 
 @draw
-def display(text: str, font: str="Helvetica", size: int=12) -> int:
+def display(text: str, font: str = "Helvetica", size: int = 12) -> int:
     t = TurtleCanvas._canvas.create_text(
         TurtleCanvas._x,
         TurtleCanvas._y,
         anchor="nw",
         font=(f"{font} {size}"),
         fill=TurtleCanvas._colour,
-        text=text)
+        text=text,
+    )
     return t
+
 
 @draw
 def blank(colour) -> int:
     r = TurtleCanvas._canvas.create_rectangle(
-        0, 0, 
-        TurtleCanvas._width, TurtleCanvas._height, 
-        fill=colour_to_str(colour), width=0
+        0,
+        0,
+        TurtleCanvas._width,
+        TurtleCanvas._height,
+        fill=colour_to_str(colour),
+        width=0,
     )
     return r
+
+
+@draw
+# If boundry is a negative number, then any colour is acceptable
+def fill(x: int, y: int, boundry: int | str):
+    if boundry.isinstance(str):
+        boundry = colour_to_int(boundry)
+    initcol = pixcol(x, y)
+
 
 # get information about the canvas
 def pixcol(x: int, y: int) -> int:
@@ -364,32 +425,32 @@ def pixcol(x: int, y: int) -> int:
         (x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
         (y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier,
         (x - TurtleCanvas._origin_x + 1) * TurtleCanvas._x_multiplier,
-        (y - TurtleCanvas._origin_y + 1) * TurtleCanvas._y_multiplier)
+        (y - TurtleCanvas._origin_y + 1) * TurtleCanvas._y_multiplier,
+    )
     if len(ids) == 0:
         # if no objects overlap, the pixel is white
-        return colour_to_int("white")
+        return white
     for id in reversed(ids):
         colour = TurtleCanvas._canvas.itemcget(id, "fill")
         if colour:
             return colour_to_int(colour)
     # All items overlapping the pixel are transparent
-    return colour_to_int("white")
+    return white
+
 
 def get_key_sym() -> str:
     return TurtleCanvas._key_sym
 
+
 def get_key_code() -> int:
     return TurtleCanvas._key_code
 
+
 # user interactions
 
-def on_key_press(event: Event):
-    TurtleCanvas._key_code = event.keycode
-    # This preserves the case for letters and removes the _L and _R from modifiers keys
-    TurtleCanvas._key_sym = event.keysym.split("_")[0]
-    TurtleCanvas._pressed_keys[TurtleCanvas._key_sym] = 1
-    TurtleCanvas._pressed_keys["key"] = 1
 
+def on_press(event: Event):
+    TurtleCanvas._kshift = 128
     if event.keysym.startswith("Shift"):
         TurtleCanvas._kshift += 8
     elif event.keysym.startswith("Alt"):
@@ -397,18 +458,48 @@ def on_key_press(event: Event):
     elif event.keysym.startswith("Control"):
         TurtleCanvas._kshift += 32
 
-def on_key_release(event: Event):
-    TurtleCanvas._key_code = - event.keycode
-    TurtleCanvas._pressed_keys[event.keysym] = -1
+    if event.type == EventType.Key:
+        TurtleCanvas._key_code = event.keycode
+        # This preserves the case for letters and removes the _L and _R from modifiers keys
+        TurtleCanvas._key_sym = event.keysym.split("_")[0]
+        TurtleCanvas._pressed_keys["key"] = TurtleCanvas._kshift
+    else:
+        TurtleCanvas._key_sym = "mouse" + str(event.num)
+        TurtleCanvas._key_code = 128 + event.num
+        TurtleCanvas._pressed_keys["mouse"] = TurtleCanvas._kshift
+        TurtleCanvas._pressed_keys["clickx"] = event.x
+        TurtleCanvas._pressed_keys["clicky"] = event.y
+        TurtleCanvas._pressed_keys["click"] = TurtleCanvas._key_code
+
+    TurtleCanvas._pressed_keys[TurtleCanvas._key_sym] = TurtleCanvas._kshift
+    TurtleCanvas._pressed_keys["mousekey"] = TurtleCanvas._kshift
+
+
+def on_release(event: Event):
+    if event.type == EventType.KeyRelease:
+        TurtleCanvas._key_code = -event.keycode
+        keysym = event.keysym.split("_")[0]
+        TurtleCanvas._pressed_keys[keysym] *= -1
+        TurtleCanvas._kshift *= -1
+        TurtleCanvas._pressed_keys["key"] *= -1
+    else:
+        keysym = "mouse" + str(event.num)
+        TurtleCanvas._pressed_keys[keysym] *= -1
+        TurtleCanvas._pressed_keys["mouse"] *= -1
+        TurtleCanvas._pressed_keys["clickx"] *= -1
+        TurtleCanvas._pressed_keys["clicky"] *= -1
+        TurtleCanvas._pressed_keys["click"] *= -1
+    TurtleCanvas._pressed_keys["mousekey"] *= -1
+
 
 def detect(key_sym, timeout) -> str:
     rounds = timeout / 100
     if timeout == 0:
-        rounds = 1 << 31
+        rounds = maxint()
     status = TurtleCanvas._pressed_keys.get(key_sym, 0)
     TurtleCanvas._pressed_keys[key_sym] = 0
     while not TurtleCanvas._pressed_keys.get(key_sym) and rounds > 0:
-        rounds -=1
+        rounds -= 1
         pause(100)
     # restore previous status if it timed out
     if rounds == 0:
@@ -416,13 +507,99 @@ def detect(key_sym, timeout) -> str:
         return ""
     return get_key_sym()
 
-# Returns 0 for a key that was never pressed, 1 for one currently pressed and -1 for one that was released
-def get_key_status(key_sym):
+
+# Returns 0 for a key that was never pressed, kshift for one currently pressed and -kshift for one that was released
+def status(key_sym: str):
     return TurtleCanvas._pressed_keys.get(key_sym, 0)
 
+
 def reset(key_sym: str):
-    if key_sym == "mouse":
+    if key_sym == "mousex":
         TurtleCanvas._mousex = -1
+    elif key_sym == "mousey":
         TurtleCanvas._mousey = -1
     else:
         TurtleCanvas._pressed_keys[key_sym] = 0
+
+
+# turtle operations
+def new_turtle(arr: list[int]):
+    TurtleCanvas._old_turtle = [
+        TurtleCanvas._x,
+        TurtleCanvas._y,
+        TurtleCanvas._direction,
+        TurtleCanvas._thick,
+        TurtleCanvas._colour,
+    ]
+    TurtleCanvas._x = arr[0]
+    TurtleCanvas._y = arr[1]
+    TurtleCanvas._direction = arr[2]
+    TurtleCanvas._thick = arr[3]
+    TurtleCanvas._colour = arr[4]
+
+
+def old_turtle():
+    TurtleCanvas._x = TurtleCanvas._old_turtle[0]
+    TurtleCanvas._y = TurtleCanvas._old_turtle[1]
+    TurtleCanvas._direction = TurtleCanvas._old_turtle[2]
+    TurtleCanvas._thick = TurtleCanvas._old_turtle[3]
+    TurtleCanvas._colour = TurtleCanvas._old_turtle[4]
+
+
+# non-canvas operations
+def randcol(n: int) -> int:
+    return colour_list[random.randint(0, n - 1)]
+
+
+def rgb(n: int) -> int:
+    return colour_list[n]
+
+
+def mixcols(col1: int | str, col2: int | str, prop1: int, prop2: int) -> int:
+    col1 = colour_to_int(col1)
+    col2 = colour_to_int(col2)
+    return (col1 * prop1 + col2 * prop2) // (prop1 + prop2)
+
+
+def divmult(a: int, b: int, c: int) -> int:
+    return int(math.round(a / b * c))
+
+
+def maxint() -> int:
+    return sys.maxsize
+
+
+def antilog(a: int, b: int, mult: int) -> int:
+    return math.pow(10, a / b) * mult
+
+
+def delete(s: str, idx: int, l: int) -> str:
+    return s[:idx] + s[idx + len :]
+
+
+def pad(s: str, padding: string, length: int) -> str:
+    return s.ljust(length, padding)
+
+
+def intdef(s, default: int) -> int:
+    try:
+        return int(s)
+    except ValueError:
+        return default
+
+
+def qstr(a: int, b: int, decplaces: int) -> str:
+    s = "{:." + str(decplaces) + "f}"
+    return s.format(a / b)
+
+
+def qint(s: str, mult: int, default: int) -> int:
+    try:
+        return round(float(s) * mult)
+    except ValueError:
+        return default
+
+
+def halt(e: Event = None):
+    TurtleCanvas._canvas.mainloop()
+    exit(0)
