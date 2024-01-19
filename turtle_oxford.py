@@ -1,3 +1,7 @@
+"""
+Turtle Oxford - a psython library for the Oxford Turtle System
+"""
+
 from contextlib import contextmanager
 import logging
 import math
@@ -48,6 +52,18 @@ class TurtleCanvas:
         width: int = 500,
         height: int = 500,
     ):
+        """
+        Create a new canvas with a new Turtle.
+
+        :param origin_x: the x coordinate of the origin of the canvas (Default: 0)
+        :type origin_x: int
+        :param origin_y: the y coordinate of the origin of the canvas (Default: 0)
+        :type origin_y: int
+        :param width: the width of the canvas (Default: 500)
+        :type width: int
+        :param height: the height of the canvas (Default: 500)
+        :type height: int
+        """
         TurtleCanvas._width = width
         TurtleCanvas._height = height
         TurtleCanvas._root = Tk()
@@ -78,6 +94,9 @@ class TurtleCanvas:
         # TurtleCanvas._history.append(TurtleCanvas._home)
 
     def refresh():
+        """
+        Refresh the canvas to display the latest drawings.
+        """
         if not TurtleCanvas._canvas:
             logging.error("Canvas not lanuched, please create a canvas first.")
         TurtleCanvas._root.update()
@@ -87,6 +106,18 @@ class TurtleCanvas:
 def turtle_canvas(
     origin_x: int = 0, origin_y: int = 0, width: int = 500, height: int = 500
 ):
+    """
+    A context manager that creates a canvas at the start and halts at the end.
+
+    :param origin_x: the x coordinate of the origin of the canvas (Default: 0)
+    :type origin_x: int
+    :param origin_y: the y coordinate of the origin of the canvas (Default: 0)
+    :type origin_y: int
+    :param width: the width of the canvas (Default: 500)
+    :type width: int
+    :param height: the height of the canvas (Default: 500)
+    :type height: int
+    """
     canvas = TurtleCanvas()
     try:
         canvas.create(origin_x, origin_y, width, height)
@@ -98,11 +129,17 @@ def turtle_canvas(
 
 
 def update():
+    """
+    Update the Canvas, and continue updating with all subsequent drawing commands.
+    """
     TurtleCanvas._update = True
     TurtleCanvas.refresh()
 
 
 def noupdate():
+    """
+    Refrain from updating the Canvas when executing all subsequent drawing commands, until update() is called.
+    """
     TurtleCanvas._update = False
 
 
