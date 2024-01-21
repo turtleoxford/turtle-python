@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Usage &#8212; Turtle Oxford  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=8fc2db88" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=b3ba4146"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Welcome to Turtle Oxford’s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Turtle Oxford’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Turtle Oxford  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h1>
+<section id="installing-python">
+<h2>Installing Python<a class="headerlink" href="#installing-python" title="Permalink to this heading">¶</a></h2>
+<p>A good place to start is to consult the official Python starter documentation here: <a class="reference external" href="https://wiki.python.org/moin/BeginnersGuide">https://wiki.python.org/moin/BeginnersGuide</a>.</p>
+<p>First, you need to have both Python and pip installed. Some operating systems come with the former already pre-installed. To check if it is indeed installed,
+you can run the following command in a shell (this is a terminal window on a Unix machine or a Command Prompt or PowerShell window on a Windows machine):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">--</span><span class="n">version</span>
+</pre></div>
+</div>
+<p>If the version is too old (starts with 2.X), then you need to follow the installation steps anyway.</p>
+<p>To install Python, please go to <a class="reference external" href="https://www.python.org/downloads/">https://www.python.org/downloads/</a> where you can download a Python installer. If you’re having any issues or questions related to
+the installer, you should consult this installation guide which has information for most operating systems: <a class="reference external" href="https://docs.python.org/3/using/index.html">https://docs.python.org/3/using/index.html</a>.</p>
+</section>
+<section id="installing-pip">
+<h2>Installing Pip<a class="headerlink" href="#installing-pip" title="Permalink to this heading">¶</a></h2>
+<p>The official guide to installing Pip can be found here: <a class="reference external" href="https://pip.pypa.io/en/stable/installation/">https://pip.pypa.io/en/stable/installation/</a>.</p>
+<p>Pip is a python package manager which you can use to install python libraries or applications.</p>
+<p>First, you may already have pip installed, especially if you’ve just downloaded and installed Python. You can check by running the following command in a shell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="o">--</span><span class="n">version</span>
+</pre></div>
+</div>
+<p>If you do not have it installed, you can install it by running the following commands</p>
+<dl class="simple">
+<dt>For Max or Linux::</dt><dd><p>python -m ensurepip –upgrade</p>
+</dd>
+<dt>For Windows::</dt><dd><p>py -m ensurepip –upgrade</p>
+</dd>
+</dl>
+</section>
+<section id="installing-an-ide">
+<h2>Installing an IDE<a class="headerlink" href="#installing-an-ide" title="Permalink to this heading">¶</a></h2>
+<p>You can, of course, write your code in any text editor you want, then save it with a <cite>.py</cite> extension and run it from a shell like so</p>
+<dl class="simple">
+<dt>For Mac or Linux::</dt><dd><p>python example.py</p>
+</dd>
+<dt>For Windows::</dt><dd><p>py example.py</p>
+</dd>
+</dl>
+<p>But certain text editors provide a bit more functionality for writing code, such as syntax highlighting, auto-formatting and a shell within the same window.
+A very popular such editor (also called an IDE) is Visual Studio Code. Although this is a Microsoft product, there are free versions of it available for most
+operating systems, so you do not need to own a Windows machine to be able to install and use it. You can download an installer from <a class="reference external" href="https://code.visualstudio.com/">https://code.visualstudio.com/</a>.</p>
+</section>
+<section id="installing-turtle-oxford-for-python">
+<h2>Installing Turtle Oxford for Python<a class="headerlink" href="#installing-turtle-oxford-for-python" title="Permalink to this heading">¶</a></h2>
+<p>The code for Turtle Oxford is hosted entirely on GitHub at the following address: <a class="reference external" href="https://github.com/turtleoxford/turtle-python">https://github.com/turtleoxford/turtle-python</a>.</p>
+<dl class="simple">
+<dt>You can install the package in a shell, using pip with the following command::</dt><dd><p>pip install git+https://github.com/turtleoxford/turtle-python.git</p>
+</dd>
+</dl>
+</section>
+<section id="executing-one-of-the-examples">
+<h2>Executing one of the examples<a class="headerlink" href="#executing-one-of-the-examples" title="Permalink to this heading">¶</a></h2>
+<p>You can execute one of the Oxford Turtle Python examples from <a class="reference external" href="https://github.com/turtleoxford/turtle-python/tree/main/examples">https://github.com/turtleoxford/turtle-python/tree/main/examples</a> by downloading them
+and then running the following command in a shell (<cite>draw_pause.py</cite> is just one of the file names, it could be any of them):</p>
+<dl class="simple">
+<dt>On Mac or Linux</dt><dd><p>python draw_pause.py</p>
+</dd>
+<dt>Or on Windows</dt><dd><p>py draw_pause.py</p>
+</dd>
+</dl>
+</section>
+<section id="writing-your-own-programme">
+<h2>Writing your own programme<a class="headerlink" href="#writing-your-own-programme" title="Permalink to this heading">¶</a></h2>
+<p>The structure of one of Oxford Turtle Python programmes is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">turtle_oxford</span> <span class="kn">import</span> <span class="o">*</span>  <span class="c1"># This tells the interpreter to import all symbols from the Turtle module</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="o">*</span>           <span class="c1"># Optional: import one or more other packages and their symbols, math is a useful one\</span>
+
+<span class="k">with</span> <span class="n">turtle_canvas</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span> <span class="c1"># Create the canvas with the desired dimensions, you can omit the parameters to use the default size</span>
+    <span class="o">&lt;</span><span class="n">Turtle</span> <span class="n">Commands</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>You can execute this like any other python file, like in the previous section.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#installing-python">Installing Python</a></li>
+<li><a class="reference internal" href="#installing-pip">Installing Pip</a></li>
+<li><a class="reference internal" href="#installing-an-ide">Installing an IDE</a></li>
+<li><a class="reference internal" href="#installing-turtle-oxford-for-python">Installing Turtle Oxford for Python</a></li>
+<li><a class="reference internal" href="#executing-one-of-the-examples">Executing one of the examples</a></li>
+<li><a class="reference internal" href="#writing-your-own-programme">Writing your own programme</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">Welcome to Turtle Oxford’s documentation!</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="api.html"
+                          title="next chapter">API</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/usage.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Turtle Oxford’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Turtle Oxford  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Ioana Vasile.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    </div>
+  </body>
+</html>

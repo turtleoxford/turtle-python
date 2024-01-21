@@ -1,0 +1,16 @@
+\begin{sphinxtheindex}
+\let\bigletter\sphinxstyleindexlettergroup
+\let\spxpagem \sphinxstyleindexpagemain
+\let\spxentry \sphinxstyleindexentry
+\let\spxextra \sphinxstyleindexextra
+
+  \bigletter M
+  \item \spxentry{module}
+    \subitem \spxentry{turtle\_oxford}, \hyperpage{3}
+
+  \indexspace
+  \bigletter T
+  \item \spxentry{turtle\_oxford}
+    \subitem \spxentry{module}, \hyperpage{3}
+
+\end{sphinxtheindex}
