@@ -32,6 +32,7 @@
       drawxy
       ellblot
       ellipse
+      fill
       forget
       forward
       get_key_code

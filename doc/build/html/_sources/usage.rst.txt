@@ -33,9 +33,11 @@ First, you may already have pip installed, especially if you've just downloaded 
 If you do not have it installed, you can install it by running the following commands
 
 For Max or Linux::
+
     python -m ensurepip --upgrade
 
 For Windows::
+
     py -m ensurepip --upgrade
 
 
@@ -46,9 +48,11 @@ Installing an IDE
 You can, of course, write your code in any text editor you want, then save it with a `.py` extension and run it from a shell like so
 
 For Mac or Linux::
+
     python example.py
 
 For Windows::
+
     py example.py
 
 
@@ -63,6 +67,7 @@ Installing Turtle Oxford for Python
 The code for Turtle Oxford is hosted entirely on GitHub at the following address: https://github.com/turtleoxford/turtle-python.
 
 You can install the package in a shell, using pip with the following command::
+
     pip install git+https://github.com/turtleoxford/turtle-python.git
 
 
@@ -73,10 +78,12 @@ Executing one of the examples
 You can execute one of the Oxford Turtle Python examples from https://github.com/turtleoxford/turtle-python/tree/main/examples by downloading them
 and then running the following command in a shell (`draw_pause.py` is just one of the file names, it could be any of them):
 
-On Mac or Linux
+On Mac or Linux::
+
     python draw_pause.py
 
-Or on Windows
+Or on Windows::
+    
     py draw_pause.py
 
 
@@ -88,7 +95,7 @@ The structure of one of Oxford Turtle Python programmes is as follows::
 
     from turtle_oxford import *  # This tells the interpreter to import all symbols from the Turtle module
     from math import *           # Optional: import one or more other packages and their symbols, math is a useful one\
-    
+
     with turtle_canvas(0, 0, 500, 500) as t: # Create the canvas with the desired dimensions, you can omit the parameters to use the default size
         <Turtle Commands>
 

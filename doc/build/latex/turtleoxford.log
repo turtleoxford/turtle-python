@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.9.16)  21 JAN 2024 20:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2023.9.16)  21 JAN 2024 20:26
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -865,22 +865,23 @@ File: t1txtt.fd 2000/12/15 v3.1
 
 ]
 LaTeX Font Info:    Font shape `T1/txtt/b/n' in size <10> not available
-(Font)              Font shape `T1/txtt/bx/n' tried instead on input line 200.
+(Font)              Font shape `T1/txtt/bx/n' tried instead on input line 213.
 LaTeX Font Info:    Font shape `T1/txtt/m/it' in size <10> not available
-(Font)              Font shape `T1/txtt/m/sl' tried instead on input line 200.
+(Font)              Font shape `T1/txtt/m/sl' tried instead on input line 213.
  [2]
+[3] [4
+
+]
 Chapter 2.
-[3
-
-] [4] [5] [6
-
-] [7
-
-
-] (./turtleoxford.ind [8
-
+[5] [6] [7] [8
 
 ] [9
+
+
+] (./turtleoxford.ind [10
+
+
+] [11
 
 
 ]) (./turtleoxford.aux)
@@ -892,13 +893,13 @@ Package rerunfilecheck Info: File `turtleoxford.out' has not changed.
 (rerunfilecheck)             Checksum: F017DABECE04D7802E87B3AF502D7968;1523.
  ) 
 Here is how much of TeX's memory you used:
- 16260 strings out of 474934
- 268403 string characters out of 5759817
+ 16262 strings out of 474934
+ 268379 string characters out of 5759817
  1963807 words of memory out of 5000000
- 37408 multiletter control sequences out of 15000+600000
- 603118 words of font info for 74 fonts, out of 8000000 for 9000
+ 37407 multiletter control sequences out of 15000+600000
+ 605970 words of font info for 75 fonts, out of 8000000 for 9000
  1142 hyphenation exceptions out of 8191
- 72i,11n,79p,362b,658s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 72i,11n,79p,362b,660s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb>
 </usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></
 usr/local/texlive/2023/texmf-dist/fonts/type1/public/tex-gyre/qhvb.pfb></usr/lo
@@ -909,10 +910,10 @@ exmf-dist/fonts/type1/public/tex-gyre/qtmri.pfb></usr/local/texlive/2023/texmf-
 dist/fonts/type1/public/txfonts/t1xbtt.pfb></usr/local/texlive/2023/texmf-dist/
 fonts/type1/public/txfonts/t1xtt.pfb></usr/local/texlive/2023/texmf-dist/fonts/
 type1/public/txfonts/t1xtt.pfb>
-Output written on turtleoxford.pdf (13 pages, 169494 bytes).
+Output written on turtleoxford.pdf (15 pages, 168184 bytes).
 PDF statistics:
- 181 PDF objects out of 1000 (max. 8388607)
- 148 compressed objects within 2 object streams
- 26 named destinations out of 1000 (max. 500000)
+ 189 PDF objects out of 1000 (max. 8388607)
+ 154 compressed objects within 2 object streams
+ 28 named destinations out of 1000 (max. 500000)
  109 words of extra memory for PDF output out of 10000 (max. 10000000)
 
