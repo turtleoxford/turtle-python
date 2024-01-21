@@ -129,32 +129,40 @@ First, you may already have pip installed, especially if you’ve just downloade
 
 \sphinxAtStartPar
 If you do not have it installed, you can install it by running the following commands
-\begin{description}
-\sphinxlineitem{For Max or Linux::}
-\sphinxAtStartPar
-python \sphinxhyphen{}m ensurepip \textendash{}upgrade
 
-\sphinxlineitem{For Windows::}
 \sphinxAtStartPar
-py \sphinxhyphen{}m ensurepip \textendash{}upgrade
+For Max or Linux:
 
-\end{description}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{python} \PYG{o}{\PYGZhy{}}\PYG{n}{m} \PYG{n}{ensurepip} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZhy{}}\PYG{n}{upgrade}
+\end{sphinxVerbatim}
+
+\sphinxAtStartPar
+For Windows:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{py} \PYG{o}{\PYGZhy{}}\PYG{n}{m} \PYG{n}{ensurepip} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZhy{}}\PYG{n}{upgrade}
+\end{sphinxVerbatim}
 
 
 \section{Installing an IDE}
 \label{\detokenize{usage:installing-an-ide}}
 \sphinxAtStartPar
 You can, of course, write your code in any text editor you want, then save it with a \sphinxtitleref{.py} extension and run it from a shell like so
-\begin{description}
-\sphinxlineitem{For Mac or Linux::}
-\sphinxAtStartPar
-python example.py
 
-\sphinxlineitem{For Windows::}
 \sphinxAtStartPar
-py example.py
+For Mac or Linux:
 
-\end{description}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{python} \PYG{n}{example}\PYG{o}{.}\PYG{n}{py}
+\end{sphinxVerbatim}
+
+\sphinxAtStartPar
+For Windows:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{py} \PYG{n}{example}\PYG{o}{.}\PYG{n}{py}
+\end{sphinxVerbatim}
 
 \sphinxAtStartPar
 But certain text editors provide a bit more functionality for writing code, such as syntax highlighting, auto\sphinxhyphen{}formatting and a shell within the same window.
@@ -166,12 +174,13 @@ operating systems, so you do not need to own a Windows machine to be able to ins
 \label{\detokenize{usage:installing-turtle-oxford-for-python}}
 \sphinxAtStartPar
 The code for Turtle Oxford is hosted entirely on GitHub at the following address: \sphinxurl{https://github.com/turtleoxford/turtle-python}.
-\begin{description}
-\sphinxlineitem{You can install the package in a shell, using pip with the following command::}
-\sphinxAtStartPar
-pip install git+https://github.com/turtleoxford/turtle\sphinxhyphen{}python.git
 
-\end{description}
+\sphinxAtStartPar
+You can install the package in a shell, using pip with the following command:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{pip} \PYG{n}{install} \PYG{n}{git}\PYG{o}{+}\PYG{n}{https}\PYG{p}{:}\PYG{o}{/}\PYG{o}{/}\PYG{n}{github}\PYG{o}{.}\PYG{n}{com}\PYG{o}{/}\PYG{n}{turtleoxford}\PYG{o}{/}\PYG{n}{turtle}\PYG{o}{\PYGZhy{}}\PYG{n}{python}\PYG{o}{.}\PYG{n}{git}
+\end{sphinxVerbatim}
 
 
 \section{Executing one of the examples}
@@ -179,16 +188,20 @@ pip install git+https://github.com/turtleoxford/turtle\sphinxhyphen{}python.git
 \sphinxAtStartPar
 You can execute one of the Oxford Turtle Python examples from \sphinxurl{https://github.com/turtleoxford/turtle-python/tree/main/examples} by downloading them
 and then running the following command in a shell (\sphinxtitleref{draw\_pause.py} is just one of the file names, it could be any of them):
-\begin{description}
-\sphinxlineitem{On Mac or Linux}
-\sphinxAtStartPar
-python draw\_pause.py
 
-\sphinxlineitem{Or on Windows}
 \sphinxAtStartPar
-py draw\_pause.py
+On Mac or Linux:
 
-\end{description}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{python} \PYG{n}{draw\PYGZus{}pause}\PYG{o}{.}\PYG{n}{py}
+\end{sphinxVerbatim}
+
+\sphinxAtStartPar
+Or on Windows:
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{py} \PYG{n}{draw\PYGZus{}pause}\PYG{o}{.}\PYG{n}{py}
+\end{sphinxVerbatim}
 
 
 \section{Writing your own programme}
@@ -396,6 +409,13 @@ Private.
 \sphinxhline
 \sphinxAtStartPar
 \sphinxcode{\sphinxupquote{ellipse}}(*args, **kwargs)
+&
+\sphinxAtStartPar
+
+\\
+\sphinxhline
+\sphinxAtStartPar
+\sphinxcode{\sphinxupquote{fill}}(*args, **kwargs)
 &
 \sphinxAtStartPar
 

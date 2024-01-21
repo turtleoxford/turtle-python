@@ -718,6 +718,9 @@ def on_press(event: Event):
 
 def on_press(event: Event):
     TurtleCanvas._kshift = 128
+
+def on_press(event: Event):
+    TurtleCanvas._kshift = 128
     if event.keysym.startswith("Shift"):
         TurtleCanvas._kshift += 8
     elif event.keysym.startswith("Alt"):

@@ -6,7 +6,7 @@
 \contentsline {section}{\numberline {1.4}Installing Turtle Oxford for Python}{2}{section.1.4}%
 \contentsline {section}{\numberline {1.5}Executing one of the examples}{2}{section.1.5}%
 \contentsline {section}{\numberline {1.6}Writing your own programme}{2}{section.1.6}%
-\contentsline {chapter}{\numberline {2}API}{3}{chapter.2}%
-\contentsline {section}{\numberline {2.1}turtle\_oxford}{3}{section.2.1}%
-\contentsline {chapter}{Python Module Index}{7}{section*.3}%
-\contentsline {chapter}{Index}{9}{section*.4}%
+\contentsline {chapter}{\numberline {2}API}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}turtle\_oxford}{5}{section.2.1}%
+\contentsline {chapter}{Python Module Index}{9}{section*.3}%
+\contentsline {chapter}{Index}{11}{section*.4}%

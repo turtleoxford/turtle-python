@@ -344,6 +344,7 @@ INPUT /usr/local/texlive/2023/texmf-dist/fonts/tfm/public/txfonts/t1xtt.tfm
 INPUT /usr/local/texlive/2023/texmf-dist/fonts/tfm/public/tex-gyre/ec-qtmri.tfm
 INPUT /usr/local/texlive/2023/texmf-dist/fonts/tfm/public/txfonts/t1xbtt.tfm
 INPUT /usr/local/texlive/2023/texmf-dist/fonts/tfm/public/txfonts/t1xttsl.tfm
+INPUT /usr/local/texlive/2023/texmf-dist/fonts/tfm/public/tex-gyre/ec-qtmr.tfm
 INPUT ./turtleoxford.ind
 INPUT ./turtleoxford.ind
 INPUT turtleoxford.ind

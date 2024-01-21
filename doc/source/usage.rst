@@ -33,9 +33,11 @@ First, you may already have pip installed, especially if you've just downloaded 
 If you do not have it installed, you can install it by running the following commands
 
 For Max or Linux::
+
     python -m ensurepip --upgrade
 
 For Windows::
+
     py -m ensurepip --upgrade
 
 
@@ -46,9 +48,11 @@ Installing an IDE
 You can, of course, write your code in any text editor you want, then save it with a `.py` extension and run it from a shell like so
 
 For Mac or Linux::
+
     python example.py
 
 For Windows::
+
     py example.py
 
 
@@ -63,6 +67,7 @@ Installing Turtle Oxford for Python
 The code for Turtle Oxford is hosted entirely on GitHub at the following address: https://github.com/turtleoxford/turtle-python.
 
 You can install the package in a shell, using pip with the following command::
+
     pip install git+https://github.com/turtleoxford/turtle-python.git
 
 
@@ -74,9 +79,11 @@ You can execute one of the Oxford Turtle Python examples from https://github.com
 and then running the following command in a shell (`draw_pause.py` is just one of the file names, it could be any of them):
 
 On Mac or Linux::
+
     python draw_pause.py
 
 Or on Windows::
+    
     py draw_pause.py
 
 
