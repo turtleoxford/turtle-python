@@ -712,16 +712,6 @@ def get_key_code() -> int:
 
 # user interactions
 
-
-def on_press(event: Event):
-    TurtleCanvas._kshift = 128
-
-def on_press(event: Event):
-    TurtleCanvas._kshift = 128
-
-def on_press(event: Event):
-    TurtleCanvas._kshift = 128
-
 def on_press(event: Event):
     TurtleCanvas._kshift = 128
     if event.keysym.startswith("Shift"):
