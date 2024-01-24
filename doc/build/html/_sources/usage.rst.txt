@@ -10,7 +10,7 @@ A good place to start is to consult the official Python starter documentation he
 First, you need to have both Python and pip installed. Some operating systems come with the former already pre-installed. To check if it is indeed installed,
 you can run the following command in a shell (this is a terminal window on a Unix machine or a Command Prompt or PowerShell window on a Windows machine)::
 
-    python --version
+    python3 --version
 
 If the version is too old (starts with 2.X), then you need to follow the installation steps anyway.
 
@@ -27,14 +27,14 @@ Pip is a python package manager which you can use to install python libraries or
 
 First, you may already have pip installed, especially if you've just downloaded and installed Python. You can check by running the following command in a shell::
 
-    pip --version
+    pip3 --version
 
 
 If you do not have it installed, you can install it by running the following commands
 
 For Max or Linux::
 
-    python -m ensurepip --upgrade
+    python3 -m ensurepip --upgrade
 
 For Windows::
 
@@ -49,7 +49,7 @@ You can, of course, write your code in any text editor you want, then save it wi
 
 For Mac or Linux::
 
-    python example.py
+    python3 example.py
 
 For Windows::
 
@@ -68,7 +68,7 @@ The code for Turtle Oxford is hosted entirely on GitHub at the following address
 
 You can install the package in a shell, using pip with the following command::
 
-    pip install git+https://github.com/turtleoxford/turtle-python.git
+    pip3 install git+https://github.com/turtleoxford/turtle-python.git
 
 
 =============================
@@ -80,10 +80,10 @@ and then running the following command in a shell (`draw_pause.py` is just one o
 
 On Mac or Linux::
 
-    python draw_pause.py
+    python3 draw_pause.py
 
 Or on Windows::
-    
+
     py draw_pause.py
 
 
