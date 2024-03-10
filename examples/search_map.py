@@ -1,12 +1,44 @@
 from turtle_oxford import *
 from random import randint
 from math import sqrt
-from queue import PriorityQueue as PQ
 import heapq
 
 WIDTH = 1000
 LENGTH = 1000
 N = 7
+
+open = []
+
+def push(element: list[int]):
+    open.append(element)
+    position = len(open)-1
+    while open[position][0] < open[(position-1)//2][0]:
+        x = open[(position-1)//2]
+        open[(position-1)//2] = open[position]
+        open[position] = x
+        position = (position - 1) // 2
+
+def pop() -> list[int]:
+    root = open[0]
+    open[0] = open[len(open) - 1]
+    open = open.pop()
+    position = 0
+    l = len(open)
+    while (position * 2 + 1 < l and open[position][0] > open[position * 2 + 1][0]) or (
+        position * 2 + 2 < l and open[position][0] > open[position * 2 + 2][0]):
+        smallestchild = position * 2 + 1
+        if (position * 2 + 2 < l and open[position * 2 + 2][0] < open[smallestchild][0]):
+            smallestchild = position * 2 + 2
+        
+        # swap current node with its smallest child 
+        x = open[position]
+        open[position] = open[smallestchild]
+        open[smallestchild] = x 
+
+        position = smallestchild
+    return root
+
+    
 
 def draw_nodes() -> list[tuple[int]]:
     coords = []
@@ -55,9 +87,11 @@ def astar(source: str, destination: str, coords: list[tuple[int]], distances: li
     scores[source] = 0
     parents = list(range(N))
     node = source
-    heapq.heappush(open, (0, source))
+    push([0, source])
     while node != destination and open:
-        (score, node) = heapq.heappop(open)
+        l = pop()
+        score = l[0]
+        node = l[1]
         setxy(*coords[node])
         colour("blue")
         blot(5)
@@ -69,7 +103,7 @@ def astar(source: str, destination: str, coords: list[tuple[int]], distances: li
                 colour("red")
                 blot(5)
                 scores[n] = distances[node][n] + score
-                heapq.heappush(open, (scores[n], n))
+                push([scores[n], n])
                 parents[n] = node
 
 
