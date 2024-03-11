@@ -1,15 +1,15 @@
 from turtle_oxford import *
 from random import randint
 from math import sqrt
-import heapq
 
-WIDTH = 1000
-LENGTH = 1000
+WIDTH = 800
+LENGTH = 800
 N = 7
 
-open = []
+open:list[list[int]] = []
 
-def push(element: list[int]):
+def push_heap(element: list[int]):
+    global open
     open.append(element)
     position = len(open)-1
     while open[position][0] < open[(position-1)//2][0]:
@@ -18,10 +18,11 @@ def push(element: list[int]):
         open[position] = x
         position = (position - 1) // 2
 
-def pop() -> list[int]:
+def pop_heap() -> list[int]:
+    global open
     root = open[0]
     open[0] = open[len(open) - 1]
-    open = open.pop()
+    open.pop()
     position = 0
     l = len(open)
     while (position * 2 + 1 < l and open[position][0] > open[position * 2 + 1][0]) or (
@@ -81,15 +82,14 @@ def reconstruct_path(parents, source, destination):
     return reconstruct_path(parents, source, parents[destination]) + [destination]
 
 
-def astar(source: str, destination: str, coords: list[tuple[int]], distances: list[tuple[int]]):
-    open = []
+def astar(source: int, destination: int, coords: list[tuple[int]], distances: list[tuple[int]]):
     scores = [maxint()] * N
     scores[source] = 0
     parents = list(range(N))
     node = source
-    push([0, source])
-    while node != destination and open:
-        l = pop()
+    push_heap([0, source])
+    while node != destination and len(open)>0:
+        l = pop_heap()
         score = l[0]
         node = l[1]
         setxy(*coords[node])
@@ -103,7 +103,7 @@ def astar(source: str, destination: str, coords: list[tuple[int]], distances: li
                 colour("red")
                 blot(5)
                 scores[n] = distances[node][n] + score
-                push([scores[n], n])
+                push_heap([scores[n], n])
                 parents[n] = node
 
 
