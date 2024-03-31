@@ -73,7 +73,7 @@ print(
     + str(pixels)
 )
 
-with turtle_canvas(xstart, ystart, pixels, pixels) as t:
+with turtle_canvas(xstart, ystart, 800, 800) as t:
     resolution(pixels, pixels)  # Resolution depends on the speed chosen
     t = time()
     for a in range(xstart, xfinish):

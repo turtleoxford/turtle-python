@@ -3,22 +3,23 @@ import time
 from turtle_oxford import *
 from random import randrange, randint
 
-with turtle_canvas(0, 0, 1000, 1000) as t:
+with turtle_canvas(0, 0, 800, 800) as t:
+    resolution(1000, 1000)
     # show instructions}
     blank(0xFFFDD0)
     setxy(15, 200)
     colour("black")
-    display("In this typing test, you will be shown the", "Helvetica", 32)
+    display("In this typing test, you will be shown the", "Helvetica", 20)
     setxy(20, 270)
-    display("letters of the alphabet in a random order,", "Helvetica", 32)
+    display("letters of the alphabet in a random order,", "Helvetica", 20)
     setxy(20, 340)
-    display("and in a mixture of upper- and lower-case.", "Helvetica", 32)
+    display("and in a mixture of upper- and lower-case.", "Helvetica", 20)
     setxy(20, 410)
-    display("Type them as fast as you can, and see how", "Helvetica", 32)
+    display("Type them as fast as you can, and see how", "Helvetica", 20)
     setxy(20, 480)
-    display("quickly you can finish the entire alphabet.", "Helvetica", 32)
+    display("quickly you can finish the entire alphabet.", "Helvetica", 20)
     setxy(20, 620)
-    display('Now wait 5 seconds or press "Esc" key to start ...', "Helvetica", 32)
+    display('Now wait 5 seconds or press "Esc" key to start ...', "Helvetica", 20)
     # wait for escape key, 5 seconds maximum, before proceeding...
     det = detect("Escape", 5000)
     # create a string containing all letters of the alphabet
@@ -56,4 +57,4 @@ with turtle_canvas(0, 0, 1000, 1000) as t:
     blank("blue")
     setxy(60, 460)
     colour("red")
-    display("Your time was " + str(time.time() - start_time) + " seconds", 4, 50)
+    display("Your time was " + str(time.time() - start_time) + " seconds", 4, 30)
