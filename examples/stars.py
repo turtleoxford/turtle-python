@@ -1,9 +1,8 @@
+#!/bin/python3
 from turtle_oxford import *
 from random import randint
 
-with turtle_canvas(0, 0, 1000, 1000) as t:
-    # draws a star with given points & colour
-    def star(points, colr):
+def star(points, colr):
         # set the size of a "degree" so there
         # are twice as many in a complete circle
         # as there are points in the polygon
@@ -31,6 +30,11 @@ with turtle_canvas(0, 0, 1000, 1000) as t:
         colour(colr)
         # draw polygon joining remembered points
         polygon(points * 2)
+
+
+with turtle_canvas(0, 0, 800, 800) as t:
+    resolution(1000, 1000)
+    # draws a star with given points & colour
 
     # do not draw as Turtle moves
     penup()

@@ -4,7 +4,7 @@ from random import randint
 
 width = 32
 height = 32
-with turtle_canvas(0, 0, 900, 900) as t:
+with turtle_canvas(0, 0, 800, 800) as t:
     resolution(width, height)
     for x in range(width):
         for y in range(height):

@@ -93,7 +93,6 @@ class TurtleCanvas:
         TurtleCanvas._origin_x, TurtleCanvas._origin_y = origin_x, origin_y
         TurtleCanvas._home = width / 2, height / 2
         TurtleCanvas._x, TurtleCanvas._y = TurtleCanvas._home
-        # TurtleCanvas._history.append(TurtleCanvas._home)
 
     def refresh():
         """
@@ -162,6 +161,9 @@ def resolution(x: int, y: int):
         TurtleCanvas._x_multiplier,
         TurtleCanvas._y_multiplier,
     )
+    TurtleCanvas._home = x/2, y/2
+    TurtleCanvas._x /= TurtleCanvas._x_multiplier
+    TurtleCanvas._y /= TurtleCanvas._y_multiplier
 
 
 def move(func: callable) -> callable:
@@ -627,8 +629,9 @@ def polygon(n: int):
     :param n: the number of points in the polygon
     :type n: int
     """
+    adjusted_points = [(x * TurtleCanvas._x_multiplier, y * TurtleCanvas._y_multiplier) for (x, y) in TurtleCanvas._history[-n:]]
     TurtleCanvas._canvas.create_polygon(
-        *TurtleCanvas._history[-n:], fill=colour_to_str(TurtleCanvas._colour)
+        *adjusted_points, fill=colour_to_str(TurtleCanvas._colour)
     )
 
 
@@ -645,11 +648,12 @@ def display(text: str, font: str = "Helvetica", size: int = 12) -> int:
     :return: id of the shape of the text
     :rtype: int
     """
+    font_size = size * TurtleCanvas._x_multiplier
     t = TurtleCanvas._canvas.create_text(
         TurtleCanvas._x,
         TurtleCanvas._y,
         anchor="nw",
-        font=(f"{font} {size}"),
+        font=(f"{font} {font_size}"),
         fill=TurtleCanvas._colour,
         text=text,
     )
