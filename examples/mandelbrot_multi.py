@@ -10,8 +10,8 @@ def startprompt():
     print()
     print('Select Whole set, or Zoom on mini "lake" at -0.1592,-1.0330 (W/Z)', end="")
     det = ""
-    while (det != "w") and (det != "z"):
-        det = input()
+    while (det != "w") and (det!= "z"):
+        det = input().lower()
     if det == "w":
         xcentre = -500000
         ycentre = 0
@@ -27,7 +27,7 @@ def startprompt():
             "Select Fast/Medium/Slow, giving resolution 300/600/1200: (F/M/S) ", end=""
         )
     while (det != "f") and (det != "m") and (det != "s"):
-        det = input()
+        det = input().lower()
     print(det)
     if ycentre == 0:
         if det == "f":
@@ -73,8 +73,8 @@ print(
     + str(pixels)
 )
 
-with turtle_canvas(xstart, ystart, 800, 800) as t:
-    resolution(pixels, pixels)  # Resolution depends on the speed chosen
+with turtle_canvas(600, 600) as t:
+    resolution(pixels, pixels, xstart, ystart)  # Resolution depends on the speed chosen
     t = time()
     for a in range(xstart, xfinish):
         noupdate()

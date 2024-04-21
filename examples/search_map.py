@@ -2,8 +2,8 @@ from turtle_oxford import *
 from random import randint
 from math import sqrt
 
-WIDTH = 800
-LENGTH = 800
+WIDTH = 600
+LENGTH = 600
 N = 7
 
 open:list[list[int]] = []
@@ -120,7 +120,7 @@ def astar(source: int, destination: int, coords: list[tuple[int]], distances: li
             drawxy(xdist, ydist)
         
 
-with turtle_canvas(0, 0, WIDTH, LENGTH) as t:
+with turtle_canvas(WIDTH, LENGTH) as t:
     coords = draw_nodes()
     print(coords)
     distances = draw_edges(coords)
