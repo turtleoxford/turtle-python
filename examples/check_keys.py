@@ -3,7 +3,7 @@ import time
 from turtle_oxford import *
 from random import randrange, randint
 
-with turtle_canvas(0, 0, 800, 800) as t:
+with turtle_canvas(600, 600) as t:
     resolution(1000, 1000)
     # show instructions}
     blank(0xFFFDD0)

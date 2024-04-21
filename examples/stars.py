@@ -32,7 +32,7 @@ def star(points, colr):
         polygon(points * 2)
 
 
-with turtle_canvas(0, 0, 800, 800) as t:
+with turtle_canvas(600, 600) as t:
     resolution(1000, 1000)
     # draws a star with given points & colour
 

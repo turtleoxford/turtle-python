@@ -49,8 +49,6 @@ class TurtleCanvas:
 
     def create(
         self,
-        origin_x: int = 0,
-        origin_y: int = 0,
         width: int = 500,
         height: int = 500,
     ):
@@ -90,7 +88,7 @@ class TurtleCanvas:
 
         self._halt.bind("<ButtonRelease>", halt)
 
-        TurtleCanvas._origin_x, TurtleCanvas._origin_y = origin_x, origin_y
+        TurtleCanvas._origin_x, TurtleCanvas._origin_y = 0, 0
         TurtleCanvas._home = width / 2, height / 2
         TurtleCanvas._x, TurtleCanvas._y = TurtleCanvas._home
 
@@ -104,9 +102,7 @@ class TurtleCanvas:
 
 
 @contextmanager
-def turtle_canvas(
-    origin_x: int = 0, origin_y: int = 0, width: int = 500, height: int = 500
-):
+def turtle_canvas(width: int = 500, height: int = 500):
     """
     Context manager that creates a canvas at the start and halts at the end.
 
@@ -121,7 +117,7 @@ def turtle_canvas(
     """
     canvas = TurtleCanvas()
     try:
-        canvas.create(origin_x, origin_y, width, height)
+        canvas.create(width, height)
         yield canvas
     except TclError:
         logging.debug("Window closed")
@@ -144,7 +140,7 @@ def noupdate():
     TurtleCanvas._update = False
 
 
-def resolution(x: int, y: int):
+def resolution(x: int, y: int, x_origin: int = 0, y_origin:int = 0):
     """ Set the resolution of the canvas to x by y
 
     :param x: resolution on the x axis
@@ -164,6 +160,8 @@ def resolution(x: int, y: int):
     TurtleCanvas._home = x/2, y/2
     TurtleCanvas._x /= TurtleCanvas._x_multiplier
     TurtleCanvas._y /= TurtleCanvas._y_multiplier
+    TurtleCanvas._origin_x = x_origin
+    TurtleCanvas._origin_y = y_origin
 
 
 def move(func: callable) -> callable:
@@ -653,7 +651,7 @@ def display(text: str, font: str = "Helvetica", size: int = 12) -> int:
         TurtleCanvas._x,
         TurtleCanvas._y,
         anchor="nw",
-        font=(f"{font} {font_size}"),
+        font=(font, int(font_size)),
         fill=TurtleCanvas._colour,
         text=text,
     )
