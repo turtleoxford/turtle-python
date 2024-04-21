@@ -2,7 +2,7 @@ from turtle_oxford import *
 from time import time
 
 # STARTPROMPT offers the user either to display the entire Mandelbrot set or to
-# zoom in on a small "lake" within it, with three possible speeds/resolutions
+# zoom in on a small "lake" within it, with three possible speeds/canvass
 def startprompt():
     global xcentre, ycentre
     global scale, pixels
@@ -20,11 +20,11 @@ def startprompt():
         ycentre = -1033000
     if ycentre == 0:
         print(
-            "Select Fast/Medium/Slow, giving resolution 300/750/1500: (F/M/S) ", end=""
+            "Select Fast/Medium/Slow, giving canvas 300/750/1500: (F/M/S) ", end=""
         )
     else:
         print(
-            "Select Fast/Medium/Slow, giving resolution 300/600/1200: (F/M/S) ", end=""
+            "Select Fast/Medium/Slow, giving canvas 300/600/1200: (F/M/S) ", end=""
         )
     while (det != "f") and (det != "m") and (det != "s"):
         det = input().lower()
@@ -67,14 +67,14 @@ print(str(ystart / scale) + " < y < " + str(yfinish / scale))
 print(
     "Scaling factor: "
     + str(scale)
-    + "    Image resolution: "
+    + "    Image canvas: "
     + str(pixels)
     + "x"
     + str(pixels)
 )
 
 with turtle_canvas(600, 600) as t:
-    resolution(pixels, pixels, xstart, ystart)  # Resolution depends on the speed chosen
+    canvas(xstart, ystart, pixels, pixels)  # Resolution depends on the speed chosen
     t = time()
     for a in range(xstart, xfinish):
         noupdate()

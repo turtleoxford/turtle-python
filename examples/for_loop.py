@@ -3,7 +3,7 @@ from turtle_oxford import *
 
 with turtle_canvas(500, 500) as t:
     # counting from 1 to 200 ...
-    resolution(1000, 1000)
+    canvas(0, 0, 1000, 1000)
     for count in range(1, 201):
         # move forward and turn right 5 degrees
         forward(count / 3)

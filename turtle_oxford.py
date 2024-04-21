@@ -140,9 +140,12 @@ def noupdate():
     TurtleCanvas._update = False
 
 
-def resolution(x: int, y: int, x_origin: int = 0, y_origin:int = 0):
+def canvas(x_origin: int, y_origin:int, x: int, y: int):
     """ Set the resolution of the canvas to x by y
-
+    :param x_origin: x coordinate of the top left corner
+    :type x_origin: int
+    :param y_origin: y coordinate of the top left corner
+    :type x_origin: int
     :param x: resolution on the x axis
     :type x: int
     :param y: resolution on the y axis

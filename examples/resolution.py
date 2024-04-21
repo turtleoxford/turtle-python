@@ -4,7 +4,7 @@ from turtle_oxford import *
 width = 100
 height = 100
 with turtle_canvas(600, 600):
-    resolution(width, height)
+    canvas(0, 0, width, height)
     pixset(1, 1, "black")
     for i in range(0, width):
         for j in range(0, height):

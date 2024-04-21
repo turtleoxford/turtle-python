@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "turtle_oxford"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python module for the Turtle System (https://www.turtle.ox.ac.uk/)"
 authors = ["Turtle Oxford <turtlehertford@gmail.com>"]
 readme = "README.md"
