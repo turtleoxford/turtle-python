@@ -5,7 +5,7 @@ from random import randint
 width = 32
 height = 32
 with turtle_canvas(600, 600) as t:
-    resolution(width, height)
+    canvas(0, 0, width, height)
     for x in range(width):
         for y in range(height):
             if randint(0, 6) == 0:

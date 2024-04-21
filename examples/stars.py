@@ -33,7 +33,7 @@ def star(points, colr):
 
 
 with turtle_canvas(600, 600) as t:
-    resolution(1000, 1000)
+    canvas(0, 0, 1000, 1000)
     # draws a star with given points & colour
 
     # do not draw as Turtle moves
