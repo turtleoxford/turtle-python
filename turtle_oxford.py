@@ -121,7 +121,6 @@ def turtle_canvas(width: int = 500, height: int = 500):
         yield canvas
     except TclError:
         logging.debug("Window closed")
-        exit(0)
     finally:
         TurtleCanvas._canvas.mainloop()
 
