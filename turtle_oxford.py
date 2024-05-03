@@ -43,7 +43,7 @@ class TurtleCanvas:
     _key_sym: str = ""
     _kshift: int = 128
     # Possible values: +kshift, -kshift (pressed and released respectively)
-    _pressed_keys: dict[str, int] = {}
+    _pressed_keys: dict[str, int | tuple[int, int]] = {}
     _mousex: int = -1
     _mousey: int = -1
 
@@ -121,6 +121,7 @@ def turtle_canvas(width: int = 500, height: int = 500):
         yield canvas
     except TclError:
         logging.debug("Window closed")
+        exit(0)
     finally:
         TurtleCanvas._canvas.mainloop()
 
@@ -651,8 +652,8 @@ def display(text: str, font: str = "Helvetica", size: int = 12) -> int:
     """
     font_size = size * TurtleCanvas._x_multiplier
     t = TurtleCanvas._canvas.create_text(
-        TurtleCanvas._x,
-        TurtleCanvas._y,
+        (TurtleCanvas._x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
+        (TurtleCanvas._y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier,
         anchor="nw",
         font=(font, int(font_size)),
         fill=TurtleCanvas._colour,
@@ -735,10 +736,9 @@ def on_press(event: Event):
         TurtleCanvas._key_sym = "mouse" + str(event.num)
         TurtleCanvas._key_code = 128 + event.num
         TurtleCanvas._pressed_keys["mouse"] = TurtleCanvas._kshift
-        TurtleCanvas._pressed_keys["clickx"] = event.x
-        TurtleCanvas._pressed_keys["clicky"] = event.y
-        TurtleCanvas._pressed_keys["click"] = TurtleCanvas._key_code
-
+        TurtleCanvas._pressed_keys["clickx"] = event.x_root
+        TurtleCanvas._pressed_keys["clicky"] = event.y_root
+        TurtleCanvas._pressed_keys["click"] = TurtleCanvas._key_sym
     TurtleCanvas._pressed_keys[TurtleCanvas._key_sym] = TurtleCanvas._kshift
     TurtleCanvas._pressed_keys["mousekey"] = TurtleCanvas._kshift
 
@@ -754,8 +754,6 @@ def on_release(event: Event):
         keysym = "mouse" + str(event.num)
         TurtleCanvas._pressed_keys[keysym] *= -1
         TurtleCanvas._pressed_keys["mouse"] *= -1
-        TurtleCanvas._pressed_keys["clickx"] *= -1
-        TurtleCanvas._pressed_keys["clicky"] *= -1
         TurtleCanvas._pressed_keys["click"] *= -1
     TurtleCanvas._pressed_keys["mousekey"] *= -1
 
@@ -773,6 +771,15 @@ def detect(key_sym, timeout) -> str:
         TurtleCanvas._pressed_keys[key_sym] = status
         return ""
     return get_key_sym()
+
+def get_clickx() -> int:
+    return int(TurtleCanvas._pressed_keys["clickx"] / TurtleCanvas._x_multiplier + TurtleCanvas._origin_x)
+
+def get_clicky() -> int:
+    return int(TurtleCanvas._pressed_keys["clicky"] / TurtleCanvas._y_multiplier + TurtleCanvas._origin_y)
+
+def get_click() -> int:
+    return TurtleCanvas._pressed_keys["click"]
 
 
 # Returns 0 for a key that was never pressed, kshift for one currently pressed and -kshift for one that was released
