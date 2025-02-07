@@ -101,6 +101,13 @@ class TurtleCanvas:
         TurtleCanvas._root.update()
 
 
+def scale_x(x: int) -> float:
+    return (x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier
+
+def scale_y(y: int) -> float:
+    return (y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier
+
+
 @contextmanager
 def turtle_canvas(width: int = 500, height: int = 500):
     """
@@ -468,10 +475,10 @@ def _draw_line(x: int, y: int, new_x: int, new_y: int):
     """Private. Helper class used to draw a line between two points.
     """
     return TurtleCanvas._canvas.create_line(
-        (x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
-        (y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier,
-        (new_x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
-        (new_y - TurtleCanvas._origin_y) * TurtleCanvas._x_multiplier,
+        scale_x(x),
+        scale_y(y),
+        scale_x(new_x),
+        scale_y(new_y),
         fill=TurtleCanvas._colour,
         width=TurtleCanvas._thick * TurtleCanvas._x_multiplier,
     )
@@ -533,18 +540,10 @@ def ellblot(xradius: int, yradius: int) -> int:
 def _oval(xradius: int, yradius: int, border: bool = False, fill: bool = False) -> int:
     """Private. Helper function for drawing elliptical shapes.
     """
-    x1 = (
-        TurtleCanvas._x - xradius - TurtleCanvas._origin_x
-    ) * TurtleCanvas._x_multiplier
-    y1 = (
-        TurtleCanvas._y - yradius - TurtleCanvas._origin_y
-    ) * TurtleCanvas._y_multiplier
-    x2 = (
-        TurtleCanvas._x + xradius - TurtleCanvas._origin_x
-    ) * TurtleCanvas._x_multiplier
-    y2 = (
-        TurtleCanvas._y + yradius - TurtleCanvas._origin_y
-    ) * TurtleCanvas._y_multiplier
+    x1 = scale_x(TurtleCanvas._x - xradius)
+    y1 = scale_y(TurtleCanvas._y - yradius)
+    x2 = scale_x(TurtleCanvas._x + xradius)
+    y2 = scale_y(TurtleCanvas._y + yradius)
     id = -1
     if border:
         id = TurtleCanvas._canvas.create_oval(
@@ -576,10 +575,10 @@ def pixset(x: int, y: int, colour: int) -> int:
     :rtype: int
     """
     return TurtleCanvas._canvas.create_rectangle(
-        (x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
-        (y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier,
-        (x - TurtleCanvas._origin_x + 1) * TurtleCanvas._x_multiplier,
-        (y - TurtleCanvas._origin_y + 1) * TurtleCanvas._y_multiplier,
+        scale_x(x),
+        scale_y(y),
+        scale_x(x + 1),
+        scale_y(y + 1),
         fill=colour_to_str(colour),
         width=0,
     )
@@ -601,10 +600,10 @@ def box(x: int, y: int, colour: int, border: bool) -> int:
     :rtype: int
     """
     return TurtleCanvas._canvas.create_rectangle(
-        (TurtleCanvas._x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
-        (TurtleCanvas._y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier,
-        (TurtleCanvas._x - TurtleCanvas._origin_x + x) * TurtleCanvas._x_multiplier,
-        (TurtleCanvas._y - TurtleCanvas._origin_y + y) * TurtleCanvas._y_multiplier,
+        scale_x(TurtleCanvas._x),
+        scale_y(TurtleCanvas._y),
+        scale_x(TurtleCanvas._x + x),
+        scale_y(TurtleCanvas._y + y),
         fill=colour_to_str(colour),
         width=int(border) * TurtleCanvas._thick,
     )
@@ -630,7 +629,7 @@ def polygon(n: int):
     :param n: the number of points in the polygon
     :type n: int
     """
-    adjusted_points = [(x * TurtleCanvas._x_multiplier, y * TurtleCanvas._y_multiplier) for (x, y) in TurtleCanvas._history[-n:]]
+    adjusted_points = [(scale_x(x), scale_y(y)) for (x, y) in TurtleCanvas._history[-n:]]
     TurtleCanvas._canvas.create_polygon(
         *adjusted_points, fill=colour_to_str(TurtleCanvas._colour)
     )
@@ -651,8 +650,8 @@ def display(text: str, font: str = "Helvetica", size: int = 12) -> int:
     """
     font_size = size * TurtleCanvas._x_multiplier
     t = TurtleCanvas._canvas.create_text(
-        (TurtleCanvas._x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
-        (TurtleCanvas._y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier,
+        scale_x(TurtleCanvas._x),
+        scale_y(TurtleCanvas._y),
         anchor="nw",
         font=(font, int(font_size)),
         fill=TurtleCanvas._colour,
@@ -691,10 +690,10 @@ def fill(x: int, y: int, boundry: int | str):
 # get information about the canvas
 def pixcol(x: int, y: int) -> int:
     ids = TurtleCanvas._canvas.find_overlapping(
-        (x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier,
-        (y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier,
-        (x - TurtleCanvas._origin_x + 1) * TurtleCanvas._x_multiplier,
-        (y - TurtleCanvas._origin_y + 1) * TurtleCanvas._y_multiplier,
+        scale_x(x),
+        scale_y(y),
+        scale_x(x + 1),
+        scale_y(y + 1),
     )
     if len(ids) == 0:
         # if no objects overlap, the pixel is white
