@@ -875,7 +875,7 @@ def antilog(a: int, b: int, mult: int) -> int:
 
 
 def delete(s: str, idx: int, l: int) -> str:
-    return s[:idx] + s[idx + len :]
+    return s[:idx] + s[idx + l:]
 
 
 def pad(s: str, padding: string, length: int) -> str:
