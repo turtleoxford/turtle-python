@@ -1567,6 +1567,18 @@ def mkfile(name: str) -> bool:
         return True
     except Exception:
         return False
+    
+def root(radicand: float, index: float) -> float:
+    """Return the index-th root of the radicand.
+
+    :param radicand: the value to find the root of
+    :type radicand: float
+    :param index: the index of the root
+    :type index: float
+    :return: the index-th root of the radicand
+    :rtype: float
+    """
+    return radicand ** (1 / index)
 def randint(a: int, b: int) -> int:
     """Return a random integer between a and b (inclusive).
 
