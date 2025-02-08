@@ -1083,4 +1083,68 @@ def checkfile(pcode: str, file_name: str) -> str:
     new_code = code | (bit6 << 6) | (bit7 << 7)
     return format(new_code, '08b')
 
+def checkdir(pcode: str, dir_name: str) -> str:
+    # Validate PCode
+    if len(pcode) != 8:
+        raise ValueError("PCode must be 8 characters long")
+    if not all(bit in "01" for bit in pcode):
+        raise ValueError("PCode must be a binary string")
+    
+    code = int(pcode, 2)
+    action = code & 3
+    non_exist_level = code & 12    # bits 2-3
+    exist_level = code & 48        # bits 4-5
+
+    existed_before = os.path.isdir(dir_name)
+
+    if action == 0:  # Inquiry: do nothing
+        pass
+    elif action == 1:  # Delete directory if exists
+        if existed_before:
+            try:
+                shutil.rmtree(dir_name)
+            except Exception as e:
+                raise RuntimeError("\033[31mDeletion failed\033[0m") from e
+        else:
+            if non_exist_level == 4:
+                print(f"Directory {dir_name} does not exist.")
+            elif non_exist_level == 8:
+                print(f"\033[33mWarning: Directory {dir_name} does not exist.\033[0m")
+            elif non_exist_level == 12:
+                raise FileNotFoundError(f"\033[31mError: Directory {dir_name} does not exist.\033[0m")
+    elif action == 2:  # Create directory if not present
+        if not existed_before:
+            try:
+                os.makedirs(dir_name)
+            except Exception as e:
+                raise RuntimeError("\033[31mCreation failed\033[0m") from e
+        else:
+            if exist_level == 16:
+                print(f"Directory {dir_name} already exists.")
+            elif exist_level == 32:
+                print(f"\033[33mWarning: Directory {dir_name} already exists.\033[0m")
+            elif exist_level == 48:
+                raise FileExistsError(f"\033[31mError: Directory {dir_name} already exists.\033[0m")
+    elif action == 3:  # Recreate: delete if exists then create
+        if existed_before:
+            if exist_level == 16:
+                print(f"Directory {dir_name} exists and will be recreated.")
+            elif exist_level == 32:
+                print(f"\033[33mWarning: Directory {dir_name} exists and will be recreated.\033[0m")
+            elif exist_level == 48:
+                raise FileExistsError(f"\033[31mError: Directory {dir_name} exists.\033[0m")
+            try:
+                shutil.rmtree(dir_name)
+            except Exception as e:
+                raise RuntimeError("\033[31mDeletion failed during recreation\033[0m") from e
+        try:
+            os.makedirs(dir_name)
+        except Exception as e:
+            raise RuntimeError("\033[31mCreation failed during recreation\033[0m") from e
+
+    existed_after = os.path.isdir(dir_name)
+    bit6 = 1 if existed_before else 0
+    bit7 = 1 if existed_after else 0
+    new_code = code | (bit6 << 6) | (bit7 << 7)
+    return format(new_code, '08b')
 __module__ = "turtle_oxford"
