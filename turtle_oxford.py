@@ -1147,4 +1147,19 @@ def checkdir(pcode: str, dir_name: str) -> str:
     bit7 = 1 if existed_after else 0
     new_code = code | (bit6 << 6) | (bit7 << 7)
     return format(new_code, '08b')
+
+def console(clear: bool, colour: int):
+    """Clear and/or recolour console
+
+    :param clear: whether to clear the console
+    :type clear: bool
+    :param colour: the colour to set the console to
+    :type colour: int
+    """
+
+    if clear:
+        os.system("cls" if os.name == "nt" else "clear") # Clear the console (cls for Windows, clear for Unix)
+    if colour != -1:
+        os.system(f"color {colour.to_bytes(3, 'big').hex()}") # Recolour console
+
 __module__ = "turtle_oxford"
