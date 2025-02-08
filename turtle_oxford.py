@@ -1446,4 +1446,23 @@ def hypot(a: float, b: float) -> float:
     """
     return math.hypot(a, b)
 
+def isdir(path: str) -> bool:
+    """Check if the path is a directory.
+
+    :param path: the path to check
+    :type path: str
+    :return: True if the path is a directory, False otherwise
+    :rtype: bool
+    """
+    return os.path.isdir(path)
+
+def isfile(path: str) -> bool:
+    """Check if the path is a file.
+
+    :param path: the path to check
+    :type path: str
+    :return: True if the path is a file, False otherwise
+    :rtype: bool
+    """
+    return os.path.isfile(path)
 __module__ = "turtle_oxford"
