@@ -14,6 +14,7 @@ from constants import *
 import random
 import string
 import sys
+import glob
 
 
 class TurtleCanvas:
@@ -48,6 +49,8 @@ class TurtleCanvas:
     _pressed_keys: dict[str, int] = {}
     _mousex: int = -1
     _mousey: int = -1
+    _dir_search_results: list[str] = []
+    _file_search_results: list[str] = []
 
     def create(
         self,
@@ -1376,5 +1379,59 @@ def fwriteline(file_handle: file, data: str):
     :type data: str
     """
     file_handle.write(data + "\n")
+
+def find_dirs_files(pattern: str) -> list[str]:
+    """Helper function. Finds all instances that match the pattern in the directory
+
+    :param pattern: the pattern to match
+    :type pattern: str
+    :return: a list of all instances that match the pattern in the directory
+    :rtype: list[str]
+    """
+    return glob.glob(pattern)
+
+"""A type alias for a mutable handle to store the index of the found directory or file.
+"""
+type FindHandle = list[int]
+
+def finddir(pattern: str, find_handle: FindHandle) -> str:
+    """Find the first directory that matches the pattern.
+    Modifies the find_handle tuple to store the index of the handle that was found.
+    
+    :param pattern: the pattern to match
+    :type pattern: str
+    :param find_handle: the handle to store the index of the directory that was found.
+    :type find_handle: FindHandle
+    :return: the name of the directory that matches the pattern
+    :rtype: str
+    """
+    TurtleCanvas._dir_search_results = filter(os.path.isdir, find_dirs_files(pattern)) # Store all directories that match the pattern
+    return TurtleCanvas._dir_search_results[0]
+
+def findfirst(pattern: str,  find_handle: FindHandle) -> str:
+    """Find the first file that matches the pattern.
+    
+    :param pattern: the pattern to match
+    :type pattern: str
+    :param find_handle: the handle to store the index of the file that was found
+    :type find_handle: FindHandle
+    :return: the name of the first file that matches the pattern
+    :rtype: str
+    """
+    TurtleCanvas._file_search_results = filter(os.path.isfile, find_dirs_files(pattern)) # Store all files that match the pattern
+    find_handle[0] = 1 # Sets index to the second element (for subsequent findnext commands)
+    return TurtleCanvas._file_search_results[0]
+
+def findnext(find_handle: list[int]) -> str:
+    """Find the next file that matches the pattern.
+    
+    :param find_handle: the handle to store the index of the file that was found
+    :type find_handle: FindHandle
+    :return: the name of the next file that matches the pattern
+    :rtype: str
+    """
+    file = TurtleCanvas._file_search_results[find_handle[0]] # Use the files stored in the search results
+    find_handle[0] += 1 # Increment index
+    return file
 
 __module__ = "turtle_oxford"
