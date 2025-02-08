@@ -6,6 +6,7 @@ from contextlib import contextmanager
 import logging
 import math
 import os
+import shutil
 from PIL import ImageColor
 from time import sleep
 from tkinter import *
@@ -904,6 +905,18 @@ def halt(e: Event = None):
     TurtleCanvas._canvas.mainloop()
     exit(0)
 
+def cos(x: float) -> float:
+    """
+    Return the cosine of x.
+
+    :param x: the value (in angle units) to find the cosine of
+    :type x: float
+
+    :return: the cosine of x.
+    :rtype float
+    """
+    return math.cos(math.radians(x / TurtleCanvas._angles * 360))
+
 def acos(x: float) -> float:
     """
     Return the arc cosine of x in angle units.
@@ -916,6 +929,18 @@ def acos(x: float) -> float:
     """
     return degs_to_angle_units(math.degrees(math.acos(x)))
 
+def sin(x: float) -> float:
+    """
+    Return the sine of x.
+
+    :param x: the value (in angle units) to find the sine of
+    :type x: float
+
+    :return: the sine of x.
+    :rtype float
+    """
+    return math.sin(math.radians(x / TurtleCanvas._angles * 360))
+
 def asin(x: float) -> float:
     """
     Return the arc sine of x in angle units.
@@ -927,6 +952,18 @@ def asin(x: float) -> float:
     :rtype float
     """
     return degs_to_angle_units(math.degrees(math.asin(x)))
+
+def tan(x: float) -> float:
+    """
+    Return the tangent of x.
+
+    :param x: the value (in angle units) to find the tangent of
+    :type x: float
+
+    :return: the tangent of x.
+    :rtype float
+    """
+    return math.tan(math.radians(x / TurtleCanvas._angles * 360))
 
 def atan(x: float) -> float:
     """
