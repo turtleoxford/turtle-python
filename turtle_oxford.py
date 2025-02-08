@@ -1589,6 +1589,30 @@ def ord(char: str) -> int:
     :rtype: int
     """
     return ord(char)
+
+def recolour(x1: int, y1: int, x2: int, y2: int, colour: int):
+    """Recolour the specified area of the canvas.
+
+    :param x1: the x-coordinate of the top-left corner of the area
+    :type x1: int
+    :param y1: the y-coordinate of the top-left corner of the area
+    :type y1: int
+    :param x2: the x-coordinate of the bottom-right corner of the area
+    :type x2: int
+    :param y2: the y-coordinate of the bottom-right corner of the area
+    :type y2: int
+    :param colour: the colour to set the area to
+    :type colour: int
+    """
+    TurtleCanvas._canvas.create_rectangle(
+        scale_x(x1),
+        scale_y(y1),
+        scale_x(x2),
+        scale_y(y2),
+        fill=colour_to_str(colour),
+        width=0,
+    )
+
 def randint(a: int, b: int) -> int:
     """Return a random integer between a and b (inclusive).
 
