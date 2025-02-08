@@ -1250,4 +1250,131 @@ def sqrt(x: float) -> float:
 def pi() -> float:
     return math.pi
 
+def fopen(path: str, mode: int) -> file:
+    """Open a file with the specified mode.
+    Mode 1 = read
+    Mode 2 = append
+    Mode 3 = write
+
+    :param path: the path to the file
+    :type path: str
+    :param mode: the mode to open the file in
+    :type mode: int
+    :return: the file object
+    :rtype: file
+    """
+
+    if mode == 1:
+        return open(path, "r")
+    elif mode == 2:
+        return open(path, "a")
+    elif mode == 3:
+        return open(path, "w")
+    else:
+        raise ValueError("Invalid mode")
+
+def fclose(file_handle: file):
+    """ Close the file
+
+    :param file_handle: the file object to close
+    :type file_handle: file
+    """
+    file_handle.close()
+
+
+def fmove(file_handle: file, new_path: str) -> bool:
+    """Move the file object to the new path
+
+    :param file_handle: the file object to move
+    :type file_handle: file
+    :param new_path: the new path to the file
+    :type new_path: str
+    :return: True if the move operation was successful. False if it was not.
+    :rtype: bool
+    """
+    try:
+        file_name = file_handle.name
+        file_handle.close()
+        shutil.move(file_name, new_path)
+        return True
+    except Exception:
+        return False
+
+
+def fcopy(file_handle: file) -> file:
+    """Copy the file to a new file object
+
+    :param file_handle: the file object to copy
+    :type file_handle: file
+    :return: a new file object that is a copy of the original
+    :rtype: file
+    """
+    try:
+        file_name = file_handle.name
+        mode = file_handle.mode if hasattr(file_handle, 'mode') else 'r'
+        file_handle.flush()
+        copy_name = file_name + ".copy"
+        shutil.copy(file_name, copy_name)
+        return open(copy_name, mode)
+    except Exception as e:
+        raise RuntimeError("Copy failed") from e
+
+
+def fread(file_handle: file):
+    """Read the file and return its contents
+
+    :param file_handle: the file object to read
+    :type file_handle: file
+    :return: the contents of the file
+    """
+    return file_handle.read()
+
+
+def freadline(file_handle: file):
+    """Read a line from the file and return its contents
+
+    :param file_handle: the file object to read
+    :type file_handle: file
+    :return: a line from the file
+    """
+    return file_handle.readline()
+
+def fremove(file_handle: file):
+    """Delete the file
+
+    :param file_handle: the file object to delete
+    :type file_handle: file
+    """
+    file_name = file_handle.name
+    file_handle.close()
+    os.remove(file_name)
+
+def frestart(file_handle: file):
+    """Restart the file
+
+    :param file_handle: the file object to restart
+    :type file_handle: file
+    """
+    file_handle.seek(0)
+
+def fwrite(file_handle: file, data: str):
+    """Write data to the file
+
+    :param file_handle: the file object to write to
+    :type file_handle: file
+    :param data: the data to write to the file
+    :type data: str
+    """
+    file_handle.write(data)
+
+def fwriteline(file_handle: file, data: str):
+    """Write a line to the file
+
+    :param file_handle: the file object to write to
+    :type file_handle: file
+    :param data: the data to write to the file
+    :type data: str
+    """
+    file_handle.write(data + "\n")
+
 __module__ = "turtle_oxford"
