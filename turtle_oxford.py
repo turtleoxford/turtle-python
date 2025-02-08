@@ -945,5 +945,105 @@ def chdir(path: str):
 
     :param path: the new directory to change to.
     """
+    os.chdir(path)
+
+def checkfile(pcode: str, file_name: str) -> str:
+    """
+    Perform file operations on the current working directory using the given PCode.
+    bits 0-1: code AND 3 determines one of four different overall actions: 
+    0 merely enquires about the presence of a file with the specified name; 
+    1 deletes the file if it is present; 
+    2 creates it if not present; 
+    3 likewise creates it if not present, but if it already exists, recreates it anew. 
+    
+    bits 2-3: code AND 12 determines the notification level if no file initially exists: 
+    0 is silent; 
+    4 merely informs of its non-existence; 
+    8 warns of its non-existence; 
+    12 stops the program with an error message. 
+    
+    bits 4-5: code AND 48 determines the notification level if the file initially exists: 
+    0 is silent; 16 merely informs of its existence; 
+    32 warns of its existence; 
+    48 stops the program with an error message. 
+    Whatever the code value may be, if an attempt to create or delete the file fails, then the programs stops with an error message. 
+
+    bits 6-7: should be 0 on entry. 
+    On exit, bit 6 is set if and only if the file existed prior to the instruction, while bit 7 is set if and only if the file existed after the instruction. 
+    
+    The lower bits of code remain unchanged on exit.
+
+    :param pcode: A binary string PCode to use for the file operations.
+    :type pcode: str
+    :param file_name: the name of the file to perform the operations on.
+    :type file_name: str
+    
+    :return: the PCode after the file operations.
+    :rtype: str
+    """
+
+    # Check if PCode is valid
+    if len(pcode) != 8:
+        raise ValueError("PCode must be 8 characters long")
+    if not all(bit in "01" for bit in pcode):
+        raise ValueError("PCode must be a binary string")
+    
+    code = int(pcode, 2)
+    action = code & 3
+    non_exist_level = code & 12    # bits 2-3
+    exist_level = code & 48        # bits 4-5
+
+    existed_before = os.path.exists(file_name)
+
+    if action == 0:  # Inquiry: do nothing
+        pass
+    elif action == 1:  # Delete file if exists
+        if existed_before:
+            try:
+                os.remove(file_name)
+            except Exception as e:
+                raise RuntimeError("Deletion failed") from e
+        else:
+            if non_exist_level == 4:
+                print(f"File {file_name} does not exist.")
+            elif non_exist_level == 8:
+                print(f"\033[33mWarning: File {file_name} does not exist.\033[0m")
+            elif non_exist_level == 12:
+                raise FileNotFoundError(f"\033[31mError: File {file_name} does not exist.\033[0m")
+    elif action == 2:  # Create if not present
+        if not existed_before:
+            try:
+                open(file_name, "w").close()
+            except Exception as e:
+                raise RuntimeError("Creation failed") from e
+        else:
+            if exist_level == 16:
+                print(f"File {file_name} already exists.")
+            elif exist_level == 32:
+                print(f"\033[33mWarning: File {file_name} already exists.\033[0m")
+            elif exist_level == 48:
+                raise FileExistsError(f"\033[31mError: File {file_name} already exists.\033[0m")
+    elif action == 3:  # Recreate: if exists, delete then create
+        if existed_before:
+            if exist_level == 16:
+                print(f"File {file_name} exists and will be recreated.")
+            elif exist_level == 32:
+                print(f"\033[33mWarning: File {file_name} exists and will be recreated.\033[0m")
+            elif exist_level == 48:
+                raise FileExistsError(f"\033[31mError: File {file_name} exists.\033[0m")
+            try:
+                os.remove(file_name)
+            except Exception as e:
+                raise RuntimeError("Deletion failed during recreation") from e
+        try:
+            open(file_name, "w").close()
+        except Exception as e:
+            raise RuntimeError("Creation failed during recreation") from e
+
+    existed_after = os.path.exists(file_name)
+    bit6 = 1 if existed_before else 0
+    bit7 = 1 if existed_after else 0
+    new_code = code | (bit6 << 6) | (bit7 << 7)
+    return format(new_code, '08b')
 
 __module__ = "turtle_oxford"
