@@ -49,8 +49,13 @@ class TurtleCanvas:
     _pressed_keys: dict[str, int] = {}
     _mousex: int = -1
     _mousey: int = -1
+    # Search vars
     _dir_search_results: list[str] = []
     _file_search_results: list[str] = []
+    # Key buffer vars
+    _key_buffer: list = []
+    _key_buffer_size: int = 0
+    _key_echo: bool = False
 
     def create(
         self,
@@ -104,7 +109,6 @@ class TurtleCanvas:
         if not TurtleCanvas._canvas:
             logging.error("Canvas not lanuched, please create a canvas first.")
         TurtleCanvas._root.update()
-
 
 def scale_x(x: int) -> float:
     """
@@ -772,6 +776,15 @@ def on_press(event: Event):
     TurtleCanvas._pressed_keys[TurtleCanvas._key_sym] = TurtleCanvas._kshift
     TurtleCanvas._pressed_keys["mousekey"] = TurtleCanvas._kshift
 
+    # Automatically add key presses to the buffer if key echo is enabled.
+    global _key_buffer, _key_buffer_size, _key_echo
+    if len(_key_buffer) < _key_buffer_size:
+        _key_buffer.append(TurtleCanvas._key_sym)
+    else:
+        _key_buffer.pop(0)
+        _key_buffer.append(TurtleCanvas._key_sym)
+    if _key_echo:
+        print(TurtleCanvas._key_sym, end="")
 
 def on_release(event: Event):
     if event.type == EventType.KeyRelease:
@@ -1475,5 +1488,24 @@ def sign(x: float) -> int:
     :rtype: int
     """
     return 1 if x > 0 else -1 if x < 0 else 0
+
+def keybuffer(size: int):
+    """Create a key buffer of the specified size.
+
+    :param size: the size of the key buffer
+    :type size: int
+    """
+    global _key_buffer, _key_buffer_size
+    _key_buffer_size = size
+    _key_buffer = []
+
+def keyecho(on: bool):
+    """Turn on or off key echo to console
+
+    :param on: True to turn on key echo, False to turn it off
+    :type on: bool
+    """
+    global _key_echo
+    _key_echo = on
 
 __module__ = "turtle_oxford"
