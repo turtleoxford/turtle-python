@@ -1579,6 +1579,16 @@ def root(radicand: float, index: float) -> float:
     :rtype: float
     """
     return radicand ** (1 / index)
+
+def ord(char: str) -> int:
+    """Return the ASCII value of the character.
+
+    :param char: the character to find the ASCII value of
+    :type char: str
+    :return: the ASCII value of the character
+    :rtype: int
+    """
+    return ord(char)
 def randint(a: int, b: int) -> int:
     """Return a random integer between a and b (inclusive).
 
