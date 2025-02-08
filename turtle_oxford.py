@@ -915,7 +915,12 @@ def qint(s: str, mult: int, default: int) -> int:
         return round(float(s) * mult)
     except ValueError:
         return default
-
+    
+def qval(s: str, mult: int, default: int) -> int:
+    try:
+        return round(float(s) * mult)
+    except ValueError:
+        return default
 
 def halt(e: Event = None):
     TurtleCanvas._canvas.mainloop()
