@@ -1567,5 +1567,33 @@ def mkfile(name: str) -> bool:
         return True
     except Exception:
         return False
-    
+def randint(a: int, b: int) -> int:
+    """Return a random integer between a and b (inclusive).
+
+    :param a: the lower bound of the random integer
+    :type a: int
+    :param b: the upper bound of the random integer
+    :type b: int
+    :return: a random integer between a and b
+    :rtype: int
+    """
+    return random.randint(a, b)
+
+def randrange(range: int) -> int:
+    """Return a random integer between 0 and range - 1 (exclusive).
+
+    :param range: the upper bound of the random integer
+    :type range: int
+    :return: a random integer between 0 and range
+    :rtype: int
+    """
+    return random.randrange(range)
+
+def randseed(seed: int):
+    """Set the seed for the random number generator.
+
+    :param seed: the seed to set
+    :type seed: int
+    """
+    random.seed(seed)
 __module__ = "turtle_oxford"
