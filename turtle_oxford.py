@@ -876,5 +876,48 @@ def halt(e: Event = None):
     TurtleCanvas._canvas.mainloop()
     exit(0)
 
+def acos(x: float) -> float:
+    """
+    Return the arc cosine of x in angle units.
+
+    :param x: the value to find the arc cosine of.
+    :type x: float
+
+    :return: the arc cosine of x in angle units.
+    :rtype float
+    """
+    return degs_to_angle_units(math.degrees(math.acos(x)))
+
+def asin(x: float) -> float:
+    """
+    Return the arc sine of x in angle units.
+
+    :param x: the value to find the arc sine of.
+    :type x: float
+
+    :return: the arc sine of x in angle units.
+    :rtype float
+    """
+    return degs_to_angle_units(math.degrees(math.asin(x)))
+
+def atan(x: float) -> float:
+    """
+    Return the arc tangent of x in angle units.
+
+    :param x: the value to find the arc tangent of.
+    :type x: float
+
+    :return: the arc tangent of x in angle units.
+    :rtype float
+    """
+    return degs_to_angle_units(math.degrees(math.atan(x)))
+
+def chdir(path: str):
+    """Changes the current working directory to the specified path.
+
+    :param path: the new directory to change to.
+    """
+
+    
 
 __module__ = "turtle_oxford"
