@@ -1162,4 +1162,32 @@ def console(clear: bool, colour: int):
     if colour != -1:
         os.system(f"color {colour.to_bytes(3, 'big').hex()}") # Recolour console
 
+def eof(file_handle) -> bool:
+    """Check if the file handle is at the end of the file.
+
+    :param file_handle: the file handle to check
+    :type file_handle: file
+    :return: True if the file handle is at the end of the file, False otherwise
+    :rtype: bool
+    """
+    
+    curr = file_handle.tell()
+    ch = file_handle.read(1)
+    file_handle.seek(curr)
+    return ch == ""
+
+def eoln(file_handle) -> bool:
+    """Check if the file handle is at the end of a line.
+    
+    :param file_handle: the file handle to check
+    :type file_handle: file
+    :return: True if the file handle is at the end of a line, False otherwise
+    :rtype: bool
+    """
+
+    curr = file_handle.tell()
+    ch = file_handle.read(1)
+    file_handle.seek(curr)
+    return ch == "\n"
+
 __module__ = "turtle_oxford"
