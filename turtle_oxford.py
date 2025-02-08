@@ -1465,4 +1465,15 @@ def isfile(path: str) -> bool:
     :rtype: bool
     """
     return os.path.isfile(path)
+
+def sign(x: float) -> int:
+    """Return the sign of x.
+
+    :param x: the value to find the sign of
+    :type x: float
+    :return: 1 if x is positive, -1 if x is negative, 0 if x is 0
+    :rtype: int
+    """
+    return 1 if x > 0 else -1 if x < 0 else 0
+
 __module__ = "turtle_oxford"
