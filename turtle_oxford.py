@@ -1525,4 +1525,47 @@ def read(max_size: int) -> str:
     if len(_key_buffer) == 0:
         return ""
     return _key_buffer[:min(max_size, len(_key_buffer))] # Return the first max_size characters
+
+def mkdir(name: str) -> bool:
+    """Create a new directory with the specified name.
+
+    :param name: the name of the new directory
+    :type name: str
+    :return: True if the directory was created successfully, False otherwise
+    :rtype: bool
+    """
+    try:
+        os.mkdir(name)
+        return True
+    except Exception:
+        return False
+    
+def rmdir(name: str) -> bool:
+    """Remove the directory with the specified name.
+
+    :param name: the name of the directory to remove
+    :type name: str
+    :return: True if the directory was removed successfully, False otherwise
+    :rtype: bool
+    """
+    try:
+        os.rmdir(name)
+        return True
+    except Exception:
+        return False
+
+def mkfile(name: str) -> bool:
+    """Create a new file with the specified name.
+
+    :param name: the name of the new file
+    :type name: str
+    :return: True if the file was created successfully, False otherwise
+    :rtype: bool
+    """
+    try:
+        open(name, "w").close()
+        return True
+    except Exception:
+        return False
+    
 __module__ = "turtle_oxford"
