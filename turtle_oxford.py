@@ -1513,4 +1513,16 @@ def keyecho(on: bool):
     global _key_echo
     _key_echo = on
 
+def read(max_size: int) -> str:
+    """Read a string from the keyboard buffer of the specified size.
+
+    :param max_size: the maximum size of the string to read
+    :type max_size: int
+    :return: the string read from the keyboard buffer
+    :rtype: str
+    """
+    global _key_buffer
+    if len(_key_buffer) == 0:
+        return ""
+    return _key_buffer[:min(max_size, len(_key_buffer))] # Return the first max_size characters
 __module__ = "turtle_oxford"
