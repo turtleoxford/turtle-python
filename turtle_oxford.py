@@ -1170,7 +1170,7 @@ def eof(file_handle) -> bool:
     :return: True if the file handle is at the end of the file, False otherwise
     :rtype: bool
     """
-    
+
     curr = file_handle.tell()
     ch = file_handle.read(1)
     file_handle.seek(curr)
@@ -1189,5 +1189,65 @@ def eoln(file_handle) -> bool:
     ch = file_handle.read(1)
     file_handle.seek(curr)
     return ch == "\n"
+
+def exp(x: float) -> float:
+    """Return e raised to the power of x.
+
+    :param x: the exponent to raise e to
+    :type x: float
+    :return: e raised to the power of x
+    :rtype: float
+    """
+
+    return math.exp(x)
+
+def log(x: float) -> float:
+    """Return the natural logarithm of x.
+
+    :param x: the value to find the natural logarithm of
+    :type x: float
+    :return: the natural logarithm of x
+    :rtype: float
+    """
+
+    return math.log(x)
+
+def log10(x: float) -> float:
+    """Return the base-10 logarithm of x.
+
+    :param x: the value to find the base-10 logarithm of
+    :type x: float
+    :return: the base-10 logarithm of x
+    :rtype: float
+    """
+
+    return math.log10(x)
+
+def power(base: float, power: float) -> float:
+    """Return the value of base raised to the power.
+
+    :param base: the base value
+    :type base: float
+    :param power: the power to raise the base to
+    :type power: float
+    :return: base raised to the power
+    :rtype: float
+    """
+
+    return math.pow(base, power)
+
+def sqrt(x: float) -> float:
+    """Return the square root of x.
+
+    :param x: the value to find the square root of
+    :type x: float
+    :return: the square root of x
+    :rtype: float
+    """
+
+    return math.sqrt(x)
+
+def pi() -> float:
+    return math.pi
 
 __module__ = "turtle_oxford"
