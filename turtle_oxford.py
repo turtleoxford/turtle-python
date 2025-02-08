@@ -1434,4 +1434,16 @@ def findnext(find_handle: list[int]) -> str:
     find_handle[0] += 1 # Increment index
     return file
 
+def hypot(a: float, b: float) -> float:
+    """Return the hypotenuse of a right-angled triangle with sides a and b.
+
+    :param a: the length of the first side
+    :type a: float
+    :param b: the length of the second side
+    :type b: float
+    :return: the length of the hypotenuse
+    :rtype: float
+    """
+    return math.hypot(a, b)
+
 __module__ = "turtle_oxford"
