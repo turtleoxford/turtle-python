@@ -14,6 +14,7 @@ from constants import *
 import random
 import string
 import sys
+from datetime import datetime
 import glob
 
 
@@ -29,6 +30,7 @@ class TurtleCanvas:
     _colour: str = "white"
     _history: list[tuple[int, int]] = []
     _old_turtle = []
+    _time: int = datetime.now()
     # Canvas vars
     _root: Tk | None = None
     _canvas: Canvas | None = None
@@ -1642,4 +1644,21 @@ def randseed(seed: int):
     :type seed: int
     """
     random.seed(seed)
+
+def time() -> int:
+    """Return the time in milliseconds since the start of the programme.
+
+    :return: the time in milliseconds
+    :rtype: int
+    """
+    return int(datetime.now() - TurtleCanvas._time)
+
+def timeset(millis: int):
+    """Set the time to the specified value.
+
+    :param millis: the time to set
+    :type millis: int
+    """
+    TurtleCanvas._time = millis
+
 __module__ = "turtle_oxford"
