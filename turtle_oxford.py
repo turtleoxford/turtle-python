@@ -5,6 +5,7 @@ Turtle Oxford - a python library for the Oxford Turtle System
 from contextlib import contextmanager
 import logging
 import math
+import os
 from PIL import ImageColor
 from time import sleep
 from tkinter import *
@@ -102,10 +103,41 @@ class TurtleCanvas:
 
 
 def scale_x(x: int) -> float:
+    """
+    Helper function. Scales the x coordinate to the canvas resolution.
+
+    :param x: the x coordinate to be scaled
+    :type x: int
+    :return: the scaled x coordinate
+    :rtype: float
+    """
+
     return (x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier
 
 def scale_y(y: int) -> float:
+    """
+    Helper function. Scales the y coordinate to the canvas resolution.
+
+    :param y: the y coordinate to be scaled
+    :type y: int
+
+    :return: the scaled y coordinate
+    :rtype: float
+    """
+
     return (y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier
+
+def degs_to_angle_units(degs: int) -> int:
+    """
+    Helper function. Converts degrees to angle units.
+
+    :param degs: the number of degrees to convert
+    :type degs: int
+    :return: the number of angle units
+    :rtype: int
+    """
+
+    return degs * TurtleCanvas._angles / 360
 
 
 @contextmanager
@@ -339,9 +371,7 @@ def right(degrees: int):
     :param degrees: number of degrees to turn right
     :type degrees: int
     """
-    TurtleCanvas._direction = (
-        TurtleCanvas._direction - degrees * 360 / TurtleCanvas._angles
-    ) % 360
+    TurtleCanvas._direction = (TurtleCanvas._direction - degs_to_angle_units(degrees)) % 360
 
 
 def left(degrees: int):
@@ -350,9 +380,7 @@ def left(degrees: int):
     :param degrees: number of degrees to turn left
     :type degrees: int
     """
-    TurtleCanvas._direction = (
-        TurtleCanvas._direction + degrees * 360 / TurtleCanvas._angles
-    ) % 360
+    TurtleCanvas._direction = (TurtleCanvas._direction + degs_to_angle_units(degrees)) % 360
 
 
 def direction(degrees: int):
@@ -361,7 +389,7 @@ def direction(degrees: int):
     :param degrees: number of degrees that indicate a direction to face
     :type degrees: int
     """
-    TurtleCanvas._direction = 360 / TurtleCanvas._angles * degrees
+    TurtleCanvas._direction = degs_to_angle_units(degrees)
 
 
 # There is little actual support for the custom angles
@@ -917,7 +945,5 @@ def chdir(path: str):
 
     :param path: the new directory to change to.
     """
-
-    
 
 __module__ = "turtle_oxford"
