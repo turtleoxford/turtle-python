@@ -720,10 +720,10 @@ def blank(colour) -> int:
 
 
 @draw
-# If boundry is a negative number, then any colour is acceptable
-def fill(x: int, y: int, boundry: int | str):
-    if boundry.isinstance(str):
-        boundry = colour_to_int(boundry)
+# If boundary is a negative number, then any colour is acceptable
+def fill(x: int, y: int, boundary: int | str):
+    if boundary.isinstance(str):
+        boundary = colour_to_int(boundary)
     initcol = pixcol(x, y)
 
 # get information about the canvas
@@ -1584,16 +1584,6 @@ def root(radicand: float, index: float) -> float:
     :rtype: float
     """
     return radicand ** (1 / index)
-
-def ord(char: str) -> int:
-    """Return the ASCII value of the character.
-
-    :param char: the character to find the ASCII value of
-    :type char: str
-    :return: the ASCII value of the character
-    :rtype: int
-    """
-    return ord(char)
 
 def recolour(x1: int, y1: int, x2: int, y2: int, colour: int):
     """Recolour the specified area of the canvas.
