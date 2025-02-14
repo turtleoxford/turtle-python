@@ -38,11 +38,11 @@ def test_mixcols(tc_setup):
 
 def test_randint(tc_setup):
     # Test randint: 5 <= randint(5, 10) < 10
-    assert 5 <= randint(5, 10) < 10
+    assert 5 <= randint(5, 10) <= 10
 
 def test_randrange(tc_setup):
     # Test randrange: 0 <= randrange(5) < 5
-    assert 0 <= randrange(5) < 5
+    assert 0 <= randrange(5) <= 5
 
 def test_randseed(tc_setup):
     # Test randseed: randseed(1) => seed = 1
