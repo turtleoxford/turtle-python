@@ -17,7 +17,7 @@ import string
 import sys
 from datetime import datetime
 import glob
-
+import datetime as dt
 
 class TurtleCanvas:
     """Class with mostly static member describing the turtle and the canvas.
@@ -1644,7 +1644,7 @@ def time() -> int:
     :return: the time in milliseconds
     :rtype: int
     """
-    return int(datetime.now() - TurtleCanvas._time)
+    return int((datetime.now() - TurtleCanvas._time).total_seconds() * 1000)
 
 def timeset(millis: int):
     """Set the time to the specified value.
