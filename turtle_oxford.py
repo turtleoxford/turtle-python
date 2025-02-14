@@ -10,6 +10,7 @@ import shutil
 from PIL import ImageColor
 from time import sleep
 from tkinter import *
+from typing import (TypeAlias, IO)
 from constants import *
 import random
 import string
@@ -1273,6 +1274,7 @@ def sqrt(x: float) -> float:
 def pi() -> float:
     return math.pi
 
+file: TypeAlias = IO
 def fopen(path: str, mode: int) -> file:
     """Open a file with the specified mode.
     Mode 1 = read
@@ -1413,7 +1415,7 @@ def _find_dirs_files(pattern: str) -> list[str]:
 
 """A type alias for a mutable handle to store the index of the found directory or file.
 """
-type FindHandle = list[int]
+FindHandle: TypeAlias = list[int]
 
 def finddir(pattern: str, find_handle: FindHandle) -> str:
     """Find the first directory that matches the pattern.
