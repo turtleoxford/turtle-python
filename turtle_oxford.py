@@ -112,7 +112,7 @@ class TurtleCanvas:
             logging.error("Canvas not lanuched, please create a canvas first.")
         TurtleCanvas._root.update()
 
-def scale_x(x: int) -> float:
+def _scale_x(x: int) -> float:
     """
     Helper function. Scales the x coordinate to the canvas resolution.
 
@@ -124,7 +124,7 @@ def scale_x(x: int) -> float:
 
     return (x - TurtleCanvas._origin_x) * TurtleCanvas._x_multiplier
 
-def scale_y(y: int) -> float:
+def _scale_y(y: int) -> float:
     """
     Helper function. Scales the y coordinate to the canvas resolution.
 
@@ -137,7 +137,7 @@ def scale_y(y: int) -> float:
 
     return (y - TurtleCanvas._origin_y) * TurtleCanvas._y_multiplier
 
-def degs_to_angle_units(degs: int) -> int:
+def _degs_to_angle_units(degs: int) -> int:
     """
     Helper function. Converts degrees to angle units.
 
@@ -381,7 +381,7 @@ def right(degrees: int):
     :param degrees: number of degrees to turn right
     :type degrees: int
     """
-    TurtleCanvas._direction = (TurtleCanvas._direction - degs_to_angle_units(degrees)) % 360
+    TurtleCanvas._direction = (TurtleCanvas._direction - _degs_to_angle_units(degrees)) % 360
 
 
 def left(degrees: int):
@@ -390,7 +390,7 @@ def left(degrees: int):
     :param degrees: number of degrees to turn left
     :type degrees: int
     """
-    TurtleCanvas._direction = (TurtleCanvas._direction + degs_to_angle_units(degrees)) % 360
+    TurtleCanvas._direction = (TurtleCanvas._direction + _degs_to_angle_units(degrees)) % 360
 
 
 def direction(degrees: int):
@@ -399,7 +399,7 @@ def direction(degrees: int):
     :param degrees: number of degrees that indicate a direction to face
     :type degrees: int
     """
-    TurtleCanvas._direction = degs_to_angle_units(degrees)
+    TurtleCanvas._direction = _degs_to_angle_units(degrees)
 
 
 # There is little actual support for the custom angles
@@ -513,10 +513,10 @@ def _draw_line(x: int, y: int, new_x: int, new_y: int):
     """Private. Helper class used to draw a line between two points.
     """
     return TurtleCanvas._canvas.create_line(
-        scale_x(x),
-        scale_y(y),
-        scale_x(new_x),
-        scale_y(new_y),
+        _scale_x(x),
+        _scale_y(y),
+        _scale_x(new_x),
+        _scale_y(new_y),
         fill=TurtleCanvas._colour,
         width=TurtleCanvas._thick * TurtleCanvas._x_multiplier,
     )
@@ -578,10 +578,10 @@ def ellblot(xradius: int, yradius: int) -> int:
 def _oval(xradius: int, yradius: int, border: bool = False, fill: bool = False) -> int:
     """Private. Helper function for drawing elliptical shapes.
     """
-    x1 = scale_x(TurtleCanvas._x - xradius)
-    y1 = scale_y(TurtleCanvas._y - yradius)
-    x2 = scale_x(TurtleCanvas._x + xradius)
-    y2 = scale_y(TurtleCanvas._y + yradius)
+    x1 = _scale_x(TurtleCanvas._x - xradius)
+    y1 = _scale_y(TurtleCanvas._y - yradius)
+    x2 = _scale_x(TurtleCanvas._x + xradius)
+    y2 = _scale_y(TurtleCanvas._y + yradius)
     id = -1
     if border:
         id = TurtleCanvas._canvas.create_oval(
@@ -613,10 +613,10 @@ def pixset(x: int, y: int, colour: int) -> int:
     :rtype: int
     """
     return TurtleCanvas._canvas.create_rectangle(
-        scale_x(x),
-        scale_y(y),
-        scale_x(x + 1),
-        scale_y(y + 1),
+        _scale_x(x),
+        _scale_y(y),
+        _scale_x(x + 1),
+        _scale_y(y + 1),
         fill=colour_to_str(colour),
         width=0,
     )
@@ -638,10 +638,10 @@ def box(x: int, y: int, colour: int, border: bool) -> int:
     :rtype: int
     """
     return TurtleCanvas._canvas.create_rectangle(
-        scale_x(TurtleCanvas._x),
-        scale_y(TurtleCanvas._y),
-        scale_x(TurtleCanvas._x + x),
-        scale_y(TurtleCanvas._y + y),
+        _scale_x(TurtleCanvas._x),
+        _scale_y(TurtleCanvas._y),
+        _scale_x(TurtleCanvas._x + x),
+        _scale_y(TurtleCanvas._y + y),
         fill=colour_to_str(colour),
         width=int(border) * TurtleCanvas._thick,
     )
@@ -667,7 +667,7 @@ def polygon(n: int):
     :param n: the number of points in the polygon
     :type n: int
     """
-    adjusted_points = [(scale_x(x), scale_y(y)) for (x, y) in TurtleCanvas._history[-n:]]
+    adjusted_points = [(_scale_x(x), _scale_y(y)) for (x, y) in TurtleCanvas._history[-n:]]
     TurtleCanvas._canvas.create_polygon(
         *adjusted_points, fill=colour_to_str(TurtleCanvas._colour)
     )
@@ -688,8 +688,8 @@ def display(text: str, font: str = "Helvetica", size: int = 12) -> int:
     """
     font_size = size * TurtleCanvas._x_multiplier
     t = TurtleCanvas._canvas.create_text(
-        scale_x(TurtleCanvas._x),
-        scale_y(TurtleCanvas._y),
+        _scale_x(TurtleCanvas._x),
+        _scale_y(TurtleCanvas._y),
         anchor="nw",
         font=(font, int(font_size)),
         fill=TurtleCanvas._colour,
@@ -728,10 +728,10 @@ def fill(x: int, y: int, boundry: int | str):
 # get information about the canvas
 def pixcol(x: int, y: int) -> int:
     ids = TurtleCanvas._canvas.find_overlapping(
-        scale_x(x),
-        scale_y(y),
-        scale_x(x + 1),
-        scale_y(y + 1),
+        _scale_x(x),
+        _scale_y(y),
+        _scale_x(x + 1),
+        _scale_y(y + 1),
     )
     if len(ids) == 0:
         # if no objects overlap, the pixel is white
@@ -950,7 +950,7 @@ def acos(x: float) -> float:
     :return: the arc cosine of x in angle units.
     :rtype float
     """
-    return degs_to_angle_units(math.degrees(math.acos(x)))
+    return _degs_to_angle_units(math.degrees(math.acos(x)))
 
 def sin(x: float) -> float:
     """
@@ -974,7 +974,7 @@ def asin(x: float) -> float:
     :return: the arc sine of x in angle units.
     :rtype float
     """
-    return degs_to_angle_units(math.degrees(math.asin(x)))
+    return _degs_to_angle_units(math.degrees(math.asin(x)))
 
 def tan(x: float) -> float:
     """
@@ -998,7 +998,7 @@ def atan(x: float) -> float:
     :return: the arc tangent of x in angle units.
     :rtype float
     """
-    return degs_to_angle_units(math.degrees(math.atan(x)))
+    return _degs_to_angle_units(math.degrees(math.atan(x)))
 
 def chdir(path: str):
     """Changes the current working directory to the specified path.
@@ -1400,7 +1400,7 @@ def fwriteline(file_handle: file, data: str):
     """
     file_handle.write(data + "\n")
 
-def find_dirs_files(pattern: str) -> list[str]:
+def _find_dirs_files(pattern: str) -> list[str]:
     """Helper function. Finds all instances that match the pattern in the directory
 
     :param pattern: the pattern to match
@@ -1408,6 +1408,7 @@ def find_dirs_files(pattern: str) -> list[str]:
     :return: a list of all instances that match the pattern in the directory
     :rtype: list[str]
     """
+    pattern = os.path.join(os.getcwd(), pattern)
     return glob.glob(pattern)
 
 """A type alias for a mutable handle to store the index of the found directory or file.
@@ -1425,7 +1426,7 @@ def finddir(pattern: str, find_handle: FindHandle) -> str:
     :return: the name of the directory that matches the pattern
     :rtype: str
     """
-    TurtleCanvas._dir_search_results = filter(os.path.isdir, find_dirs_files(pattern)) # Store all directories that match the pattern
+    TurtleCanvas._dir_search_results = filter(os.path.isdir, _find_dirs_files(pattern)) # Store all directories that match the pattern
     return TurtleCanvas._dir_search_results[0]
 
 def findfirst(pattern: str,  find_handle: FindHandle) -> str:
@@ -1438,7 +1439,7 @@ def findfirst(pattern: str,  find_handle: FindHandle) -> str:
     :return: the name of the first file that matches the pattern
     :rtype: str
     """
-    TurtleCanvas._file_search_results = filter(os.path.isfile, find_dirs_files(pattern)) # Store all files that match the pattern
+    TurtleCanvas._file_search_results = filter(os.path.isfile, _find_dirs_files(pattern)) # Store all files that match the pattern
     find_handle[0] = 1 # Sets index to the second element (for subsequent findnext commands)
     return TurtleCanvas._file_search_results[0]
 
@@ -1607,10 +1608,10 @@ def recolour(x1: int, y1: int, x2: int, y2: int, colour: int):
     :type colour: int
     """
     TurtleCanvas._canvas.create_rectangle(
-        scale_x(x1),
-        scale_y(y1),
-        scale_x(x2),
-        scale_y(y2),
+        _scale_x(x1),
+        _scale_y(y1),
+        _scale_x(x2),
+        _scale_y(y2),
         fill=colour_to_str(colour),
         width=0,
     )
