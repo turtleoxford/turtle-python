@@ -882,7 +882,7 @@ def mixcols(col1: int | str, col2: int | str, prop1: int, prop2: int) -> int:
 
 
 def divmult(a: int, b: int, c: int) -> int:
-    return int(math.round(a / b * c))
+    return int(round(a / b * c))
 
 
 def maxint() -> int:
