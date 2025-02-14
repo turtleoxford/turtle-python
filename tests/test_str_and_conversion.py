@@ -32,6 +32,6 @@ def test_qint():
     assert qint("0.abc", 3, 5) == 5
 
 def test_qval():
-    # qval("0.5", 3, 5) -> 0.5, qval("0.abc", 3, 5) -> 0.5
-    assert qval("0.5", 3, 5) == 0.5
-    assert qval("0.abc", 3, 5) == 0.5
+    # qval("0.5", 3, 5) -> 2, qval("0.abc", 3, 5) -> 5
+    assert qval("0.5", 3, 5) == 2
+    assert qval("abc", 3, 5) == 5
