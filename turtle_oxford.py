@@ -657,8 +657,9 @@ def polyline(n: int):
     """
     x, y = TurtleCanvas._x, TurtleCanvas._y
     for (old_x, old_y) in TurtleCanvas._history[-n:]:
-        _draw_line(x, y, old_x, old_y)
+        id = _draw_line(x, y, old_x, old_y)
         x, y = old_x, old_y
+    return id
 
 
 @draw
@@ -669,7 +670,7 @@ def polygon(n: int):
     :type n: int
     """
     adjusted_points = [(_scale_x(x), _scale_y(y)) for (x, y) in TurtleCanvas._history[-n:]]
-    TurtleCanvas._canvas.create_polygon(
+    return TurtleCanvas._canvas.create_polygon(
         *adjusted_points, fill=colour_to_str(TurtleCanvas._colour)
     )
 
@@ -722,9 +723,11 @@ def blank(colour) -> int:
 @draw
 # If boundary is a negative number, then any colour is acceptable
 def fill(x: int, y: int, boundary: int | str):
-    if boundary.isinstance(str):
+    if isinstance(boundary, str):
         boundary = colour_to_int(boundary)
+    print("Before pixcol")
     initcol = pixcol(x, y)
+    print("After pixcol")
 
 # get information about the canvas
 def pixcol(x: int, y: int) -> int:
@@ -780,13 +783,12 @@ def on_press(event: Event):
     TurtleCanvas._pressed_keys["mousekey"] = TurtleCanvas._kshift
 
     # Automatically add key presses to the buffer if key echo is enabled.
-    global _key_buffer, _key_buffer_size, _key_echo
-    if len(_key_buffer) < _key_buffer_size:
-        _key_buffer.append(TurtleCanvas._key_sym)
+    if len(TurtleCanvas._key_buffer) < TurtleCanvas._key_buffer_size:
+        TurtleCanvas._key_buffer.append(TurtleCanvas._key_sym)
     else:
-        _key_buffer.pop(0)
-        _key_buffer.append(TurtleCanvas._key_sym)
-    if _key_echo:
+        TurtleCanvas._key_buffer.pop(0)
+        TurtleCanvas._key_buffer.append(TurtleCanvas._key_sym)
+    if TurtleCanvas._key_echo:
         print(TurtleCanvas._key_sym, end="")
 
 def on_release(event: Event):
@@ -1505,7 +1507,6 @@ def keybuffer(size: int):
     :param size: the size of the key buffer
     :type size: int
     """
-    global _key_buffer, _key_buffer_size
     _key_buffer_size = size
     _key_buffer = []
 
@@ -1515,7 +1516,6 @@ def keyecho(on: bool):
     :param on: True to turn on key echo, False to turn it off
     :type on: bool
     """
-    global _key_echo
     _key_echo = on
 
 def read(max_size: int) -> str:
@@ -1526,10 +1526,9 @@ def read(max_size: int) -> str:
     :return: the string read from the keyboard buffer
     :rtype: str
     """
-    global _key_buffer
-    if len(_key_buffer) == 0:
+    if len(TurtleCanvas._key_buffer) == 0:
         return ""
-    return _key_buffer[:min(max_size, len(_key_buffer))] # Return the first max_size characters
+    return TurtleCanvas._key_buffer[:min(max_size, len(TurtleCanvas._key_buffer))] # Return the first max_size characters
 
 def mkdir(name: str) -> bool:
     """Create a new directory with the specified name.
@@ -1599,7 +1598,7 @@ def recolour(x1: int, y1: int, x2: int, y2: int, colour: int):
     :param colour: the colour to set the area to
     :type colour: int
     """
-    TurtleCanvas._canvas.create_rectangle(
+    return TurtleCanvas._canvas.create_rectangle(
         _scale_x(x1),
         _scale_y(y1),
         _scale_x(x2),
