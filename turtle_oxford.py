@@ -725,9 +725,7 @@ def blank(colour) -> int:
 def fill(x: int, y: int, boundary: int | str):
     if isinstance(boundary, str):
         boundary = colour_to_int(boundary)
-    print("Before pixcol")
     initcol = pixcol(x, y)
-    print("After pixcol")
 
 # get information about the canvas
 def pixcol(x: int, y: int) -> int:
@@ -1507,8 +1505,8 @@ def keybuffer(size: int):
     :param size: the size of the key buffer
     :type size: int
     """
-    _key_buffer_size = size
-    _key_buffer = []
+    TurtleCanvas._key_buffer_size = size
+    TurtleCanvas._key_buffer = []
 
 def keyecho(on: bool):
     """Turn on or off key echo to console
@@ -1516,7 +1514,7 @@ def keyecho(on: bool):
     :param on: True to turn on key echo, False to turn it off
     :type on: bool
     """
-    _key_echo = on
+    TurtleCanvas._key_echo = on
 
 def read(max_size: int) -> str:
     """Read a string from the keyboard buffer of the specified size.
