@@ -1428,7 +1428,11 @@ def finddir(pattern: str, find_handle: FindHandle) -> str:
     :return: the name of the directory that matches the pattern
     :rtype: str
     """
-    TurtleCanvas._dir_search_results = filter(os.path.isdir, _find_dirs_files(pattern)) # Store all directories that match the pattern
+    # Fix empty find handle
+    if len(find_handle) == 0:
+        find_handle.append(0)
+
+    TurtleCanvas._dir_search_results = list(filter(os.path.isdir, _find_dirs_files(pattern))) # Store all directories that match the pattern
     return TurtleCanvas._dir_search_results[0]
 
 def findfirst(pattern: str,  find_handle: FindHandle) -> str:
@@ -1441,7 +1445,11 @@ def findfirst(pattern: str,  find_handle: FindHandle) -> str:
     :return: the name of the first file that matches the pattern
     :rtype: str
     """
-    TurtleCanvas._file_search_results = filter(os.path.isfile, _find_dirs_files(pattern)) # Store all files that match the pattern
+    # Fix empty find handle
+    if len(find_handle) == 0:
+        find_handle.append(0)
+
+    TurtleCanvas._file_search_results = list(filter(os.path.isfile, _find_dirs_files(pattern))) # Store all files that match the pattern
     find_handle[0] = 1 # Sets index to the second element (for subsequent findnext commands)
     return TurtleCanvas._file_search_results[0]
 
@@ -1453,6 +1461,11 @@ def findnext(find_handle: list[int]) -> str:
     :return: the name of the next file that matches the pattern
     :rtype: str
     """
+
+    # Fix empty find handle
+    if len(find_handle) == 0:
+        find_handle.append(0)
+
     file = TurtleCanvas._file_search_results[find_handle[0]] # Use the files stored in the search results
     find_handle[0] += 1 # Increment index
     return file
