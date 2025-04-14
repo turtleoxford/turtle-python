@@ -491,11 +491,18 @@ def test_checkdir_action3(monkeypatch, capsys, test_case, setup, expected_result
             assert expected_output in captured.out
 
 def test_chdir(monkeypatch):
-    # Mock os.chdir to return None
-    monkeypatch.setattr(os, "chdir", lambda _: None)
+    # Mock os.chdir to increment count
+    chdir_calls: int = 0
+    def mock_chdir(path):
+        nonlocal chdir_calls
+        chdir_calls += 1
+    monkeypatch.setattr(os, "chdir", mock_chdir)
     
     # Test chdir
     chdir("test_dir")
+
+    # Verify that os.chdir was called with the correct argument
+    assert chdir_calls == 1, "chdir should be called once"
 
 def test_fopen_fclose(temp_file):
     # Test mode 1 (read)
