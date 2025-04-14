@@ -1517,109 +1517,110 @@ def fopen(path: str, mode: int) -> file:
     else:
         raise ValueError("Invalid mode")
 
-def fclose(file_handle: file):
+def fclose(file_to_close: file):
     """ Close the file
 
     :param file_handle: the file object to close
     :type file_handle: file
     """
-    file_handle.close()
+    file_to_close.close()
 
 
-def fmove(file_handle: file, new_path: str) -> bool:
+def fmove(file_to_move: file, new_path: str) -> bool:
     """Move the file object to the new path
 
-    :param file_handle: the file object to move
-    :type file_handle: file
+    :param file_to_move: the file object to move
+    :type file_to_move: file
     :param new_path: the new path to the file
     :type new_path: str
     :return: True if the move operation was successful. False if it was not.
     :rtype: bool
     """
     try:
-        file_name = file_handle.name
-        file_handle.close()
+        file_name = file_to_move.name
+        file_to_move.close()
         shutil.move(file_name, new_path)
         return True
-    except Exception:
+    except Exception as e:
+        print(f"Error moving file: {e}")
         return False
 
 
-def fcopy(file_handle: file) -> file:
+def fcopy(file_to_copy: file) -> file:
     """Copy the file to a new file object
 
-    :param file_handle: the file object to copy
-    :type file_handle: file
+    :param file_to_copy: the file object to copy
+    :type file_to_copy: file
     :return: a new file object that is a copy of the original
     :rtype: file
     """
     try:
-        file_name = file_handle.name
-        mode = file_handle.mode if hasattr(file_handle, 'mode') else 'r'
-        file_handle.flush()
+        file_name = file_to_copy.name
+        mode = file_to_copy.mode if hasattr(file_to_copy, 'mode') else 'r'
+        file_to_copy.flush()
         copy_name = file_name + ".copy"
         shutil.copy(file_name, copy_name)
         return open(copy_name, mode)
     except Exception as e:
-        raise RuntimeError("Copy failed") from e
+        print(f"Error copying file: {e}")
 
 
-def fread(file_handle: file):
+def fread(file_to_read: file):
     """Read the file and return its contents
 
-    :param file_handle: the file object to read
-    :type file_handle: file
+    :param file_to_read: the file object to read
+    :type file_to_read: file
     :return: the contents of the file
     """
-    return file_handle.read()
+    return file_to_read.read()
 
 
-def freadline(file_handle: file):
+def freadline(file_to_read: file):
     """Read a line from the file and return its contents
 
-    :param file_handle: the file object to read
-    :type file_handle: file
+    :param file_to_read: the file object to read
+    :type file_to_read: file
     :return: a line from the file
     """
-    return file_handle.readline()
+    return file_to_read.readline()
 
-def fremove(file_handle: file):
+def fremove(file_to_remove: file):
     """Delete the file
 
-    :param file_handle: the file object to delete
-    :type file_handle: file
+    :param file_to_remove: the file object to delete
+    :type file_to_remove: file
     """
-    file_name = file_handle.name
-    file_handle.close()
+    file_name = file_to_remove.name
+    file_to_remove.close()
     os.remove(file_name)
 
-def frestart(file_handle: file):
+def frestart(file_to_restart: file):
     """Restart the file
 
-    :param file_handle: the file object to restart
-    :type file_handle: file
+    :param file_to_restart: the file object to restart
+    :type file_to_restart: file
     """
-    file_handle.seek(0)
+    file_to_restart.seek(0)
 
-def fwrite(file_handle: file, data: str):
+def fwrite(file_to_write: file, data: str):
     """Write data to the file
 
-    :param file_handle: the file object to write to
-    :type file_handle: file
+    :param file_to_write: the file object to write to
+    :type file_to_write: file
     :param data: the data to write to the file
     :type data: str
     """
-    file_handle.write(data)
+    file_to_write.write(data)
 
-def fwriteline(file_handle: file, data: str):
+def fwriteline(file_to_write: file, data: str):
     """Write a line to the file
 
-    :param file_handle: the file object to write to
-    :type file_handle: file
+    :param file_to_write: the file object to write to
+    :type file_to_write: file
     :param data: the data to write to the file
     :type data: str
     """
-    file_handle.write(data + "\n")
+    file_to_write.write(data + "\n")
 
 def _find_dirs_files(pattern: str) -> list[str]:
     """Helper function. Finds all instances that match the pattern in the directory
@@ -1630,9 +1631,10 @@ def _find_dirs_files(pattern: str) -> list[str]:
     :rtype: list[str]
     """
     pattern = os.path.join(os.getcwd(), pattern)
-    return glob.glob(pattern)
+    return glob.glob(pattern, root_dir=os.getcwd)
 
 """A type alias for a mutable handle to store the index of the found directory or file.
+This is a workaround for the fact that Python does not support mutable integers.
 """
 FindHandle: TypeAlias = list[int]
 
@@ -1771,7 +1773,8 @@ def mkdir(name: str) -> bool:
     try:
         os.mkdir(name)
         return True
-    except Exception:
+    except Exception as e:
+        print(f"Error creating directory: {e}")
         return False
     
 def rmdir(name: str) -> bool:
@@ -1785,7 +1788,8 @@ def rmdir(name: str) -> bool:
     try:
         os.rmdir(name)
         return True
-    except Exception:
+    except Exception as e:
+        print(f"Error removing directory: {e}")
         return False
 
 def mkfile(name: str) -> bool:
@@ -1799,7 +1803,8 @@ def mkfile(name: str) -> bool:
     try:
         open(name, "w").close()
         return True
-    except Exception:
+    except Exception as e:
+        print(f"Error creating file: {e}")
         return False
     
 def root(radicand: float, index: float) -> float:
