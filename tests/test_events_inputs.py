@@ -1,40 +1,16 @@
 import time
-import math
-import sys
-import pytest
-import tkinter
-from tkinter import EventType
 import threading
-from PIL import ImageColor
+import tkinter
 import os
-from turtle_oxford import (TurtleCanvas, turtle_canvas) # Standard imports
-from turtle_oxford import (_degs_to_angle_units, _scale_x, _scale_y) # Useful helpers
+from tkinter import EventType
+import pytest
+from test_utils import tc_setup, MockEvent 
+from turtle_oxford import (TurtleCanvas)
 from turtle_oxford import (on_press, on_release, detect, get_key_sym, get_key_code, get_clickx, get_clicky, get_click, status, reset, keybuffer, keyecho, read) # Functions under testing
 TclError = tkinter.TclError  # in case needed
 
 # Use a lambda to check if two floats are close (avoiding floating point errors)
 is_close = lambda a, b: abs(a - b) < 1e-6
-
-# Fixture to create a canvas and override mainloop so tests don't block
-@pytest.fixture
-def tc_setup():
-    with turtle_canvas() as tc:
-        # Monkey-patch mainloop to a no-op
-        if TurtleCanvas._canvas:
-            TurtleCanvas._canvas.mainloop = lambda: None
-        # Reset state for tests
-        TurtleCanvas._history = []
-        yield tc
-
-# Mock Event class to simulate keyboard/mouse events
-class MockEvent:
-    def __init__(self, event_type=EventType.Key, keysym="a", keycode=65, x_root=100, y_root=200, num=1):
-        self.type = event_type
-        self.keysym = keysym
-        self.keycode = keycode
-        self.x_root = x_root
-        self.y_root = y_root
-        self.num = num  # For mouse button number
 
 def test_on_press_key_event(tc_setup):
     # Initialize key buffer to prevent IndexError

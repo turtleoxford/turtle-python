@@ -5,20 +5,9 @@ import pytest
 import tkinter
 from PIL import ImageColor
 import os
-from turtle_oxford import (TurtleCanvas, turtle_canvas) # Standard imports
-from turtle_oxford import (colour_to_int, colour_to_str, colour, thickness, penup, pendown) # Functions under testing
+from test_utils import tc_setup
+from turtle_oxford import (TurtleCanvas, colour_to_int, colour_to_str, colour, thickness, penup, pendown) # Functions under testing
 TclError = tkinter.TclError  # in case needed
-
-# Fixture to create a canvas and override mainloop so tests don't block
-@pytest.fixture
-def tc_setup():
-    with turtle_canvas() as tc:
-        # Monkey-patch mainloop to a no-op
-        if TurtleCanvas._canvas:
-            TurtleCanvas._canvas.mainloop = lambda: None
-        # Reset state for tests
-        TurtleCanvas._history = []
-        yield tc
 
 def test_colour_to_int_with_int():
     # When an int is provided it should return itself.

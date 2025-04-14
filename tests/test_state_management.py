@@ -4,20 +4,10 @@ import sys
 import pytest
 import tkinter
 import os
+from test_utils import tc_setup
 from turtle_oxford import (TurtleCanvas, turtle_canvas) # Standard imports
 from turtle_oxford import (remember, forget, new_turtle, old_turtle) # Functions under testing
 TclError = tkinter.TclError  # in case needed
-
-# Fixture to create a canvas and override mainloop so tests don't block
-@pytest.fixture
-def tc_setup():
-    with turtle_canvas() as tc:
-        # Monkey-patch mainloop to a no-op
-        if TurtleCanvas._canvas:
-            TurtleCanvas._canvas.mainloop = lambda: None
-        # Reset state for tests
-        TurtleCanvas._history = []
-        yield tc
 
 def test_remember(tc_setup):
     # Reset history

@@ -1,26 +1,10 @@
-import time
-import math
 import sys
+import math
 import pytest
 import tkinter
-import os
-from turtle_oxford import (TurtleCanvas, turtle_canvas) # Standard imports
-from turtle_oxford import (divmult, maxint, antilog, cos, acos, sin, asin, tan, atan, exp, log, log10, power, sqrt, pi, hypot, root, sign) # Functions under testing
+from test_utils import tc_setup, is_close
+from turtle_oxford import (TurtleCanvas, divmult, maxint, antilog, cos, acos, sin, asin, tan, atan, exp, log, log10, power, sqrt, pi, hypot, root, sign) # Functions under testing
 TclError = tkinter.TclError  # in case needed
-
-# Use a lambda to check if two floats are close (avoiding floating point errors)
-is_close = lambda a, b: abs(a - b) < 1e-6
-
-# Fixture to create a canvas and override mainloop so tests don't block
-@pytest.fixture
-def tc_setup():
-    with turtle_canvas() as tc:
-        # Monkey-patch mainloop to a no-op
-        if TurtleCanvas._canvas:
-            TurtleCanvas._canvas.mainloop = lambda: None
-        # Reset state for tests
-        TurtleCanvas._history = []
-        yield tc
 
 def test_divmult():
     # Test divmult: 2/3 * 6 = 4, 1/3 * 4 = 1

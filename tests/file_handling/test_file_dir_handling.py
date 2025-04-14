@@ -6,33 +6,10 @@ import tkinter
 from PIL import ImageColor
 import shutil
 import os
-from turtle_oxford import (TurtleCanvas, turtle_canvas) # Standard imports
-from turtle_oxford import (_degs_to_angle_units, _scale_x, _scale_y) # Useful helpers
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from test_utils import tc_setup, temp_file
 from turtle_oxford import (checkfile, checkdir, chdir, fopen, fclose, fmove, fcopy, fread, freadline, fremove, frestart, fwrite, fwriteline, finddir, findfirst, findnext, isdir, isfile, mkdir, rmdir, mkfile, eof, eoln) # Functions under testing
 TclError = tkinter.TclError  # in case needed
-
-# Use a lambda to check if two floats are close (avoiding floating point errors)
-is_close = lambda a, b: abs(a - b) < 1e-6
-
-# Fixture to create a canvas and override mainloop so tests don't block
-@pytest.fixture
-def tc_setup():
-    with turtle_canvas() as tc:
-        # Monkey-patch mainloop to a no-op
-        if TurtleCanvas._canvas:
-            TurtleCanvas._canvas.mainloop = lambda: None
-        # Reset state for tests
-        TurtleCanvas._history = []
-        yield tc
-
-# Fixture to create a temporary file for testing
-@pytest.fixture
-def temp_file(tmp_path):
-    # Create a temporary file with some content
-    file_path = tmp_path / "test_file.txt"
-    with open(file_path, "w") as f:
-        f.write("line1\nline2\nline3")
-    return str(file_path)
 
 # Tests for input validation
 def test_checkfile_pcode_length():

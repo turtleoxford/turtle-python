@@ -5,24 +5,10 @@ import pytest
 import tkinter
 from PIL import ImageColor
 import os
-from turtle_oxford import (TurtleCanvas, turtle_canvas) # Standard imports
+from test_utils import tc_setup, is_close
 from turtle_oxford import (_degs_to_angle_units, _scale_x, _scale_y) # Useful helpers
-from turtle_oxford import (blot, circle, ellipse, ellblot, pixset, box, polyline, polygon, display, blank, recolour, fill, pixcol) # Functions under testing
+from turtle_oxford import (TurtleCanvas, blot, circle, ellipse, ellblot, pixset, box, polyline, polygon, display, blank, recolour, fill, pixcol) # Functions under testing
 TclError = tkinter.TclError  # in case needed
-
-# Use a lambda to check if two floats are close (avoiding floating point errors)
-is_close = lambda a, b: abs(a - b) < 1e-6
-
-# Fixture to create a canvas and override mainloop so tests don't block
-@pytest.fixture
-def tc_setup():
-    with turtle_canvas() as tc:
-        # Monkey-patch mainloop to a no-op
-        if TurtleCanvas._canvas:
-            TurtleCanvas._canvas.mainloop = lambda: None
-        # Reset state for tests
-        TurtleCanvas._history = []
-        yield tc
 
 def test_blot(tc_setup):
     # Setup known values for scaling

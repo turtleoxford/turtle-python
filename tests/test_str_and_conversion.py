@@ -4,6 +4,7 @@ import sys
 import pytest
 import tkinter
 import os
+from test_utils import tc_setup, is_close
 from turtle_oxford import (TurtleCanvas, turtle_canvas) # Standard imports
 from turtle_oxford import (delete, pad, intdef, qstr, qint, qval) # Functions under testing
 TclError = tkinter.TclError  # in case needed

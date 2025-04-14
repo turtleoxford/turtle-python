@@ -1,26 +1,10 @@
-import time
-import math
 import sys
 import pytest
-import time as tm
 import tkinter
-import os
+from test_utils import tc_setup
 from constants import *
-from turtle_oxford import (TurtleCanvas, turtle_canvas) # Standard imports
-from turtle_oxford import (_degs_to_angle_units) # Useful helpers
-from turtle_oxford import (randcol, rgb, mixcols, randint, randrange, randseed) # Functions under testing
+from turtle_oxford import (TurtleCanvas, randcol, rgb, mixcols, randint, randrange, randseed) # Functions under testing
 TclError = tkinter.TclError  # in case needed
-
-# Fixture to create a canvas and override mainloop so tests don't block
-@pytest.fixture
-def tc_setup():
-    with turtle_canvas() as tc:
-        # Monkey-patch mainloop to a no-op
-        if TurtleCanvas._canvas:
-            TurtleCanvas._canvas.mainloop = lambda: None
-        # Reset state for tests
-        TurtleCanvas._history = []
-        yield tc
 
 def test_randcol(tc_setup):
     assert randcol(colour_list.__len__()) in colour_list
