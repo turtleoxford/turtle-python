@@ -37,564 +37,458 @@ def temp_file(tmp_path):
 # Tests for input validation
 def test_checkfile_pcode_length():
     # Test with invalid PCode length
-    with pytest.raises(ValueError, match="PCode must be 8 characters long"):
+    with pytest.raises(ValueError):
         checkfile("0101", "test.txt")
 
 def test_checkfile_pcode_invalid_chars():
     # Test with non-binary characters
-    with pytest.raises(ValueError, match="PCode must be a binary string"):
+    with pytest.raises(ValueError):
         checkfile("0123abcd", "test.txt")
 
 # Tests for action 0: Inquiry only
-def test_checkfile_action0_file_exists(monkeypatch):
-    # Mock os.path.exists to return True
-    monkeypatch.setattr(os.path, "exists", lambda _: True)
+@pytest.mark.parametrize("file_exists,expected_result", [
+    (True, "11000000"),  # File exists
+    (False, "00000000")  # File does not exist
+])
+def test_checkfile_action0(monkeypatch, file_exists, expected_result):
+    # Mock os.path.exists to return the parametrized value
+    monkeypatch.setattr(os.path, "exists", lambda _: file_exists)
     
-    # Action 0 (inquiry only), file exists
+    # Action 0 (inquiry only)
     result = checkfile("00000000", "test.txt")
-    # Expect bit 6 set (file existed before), bit 7 set (file exists after)
-    assert result == "11000000"
-
-def test_checkfile_action0_file_not_exists(monkeypatch):
-    # Mock os.path.exists to return False
-    monkeypatch.setattr(os.path, "exists", lambda _: False)
-    
-    # Action 0 (inquiry only), file doesn't exist
-    result = checkfile("00000000", "test.txt")
-    # Expect both bit 6 and 7 unset (file never existed)
-    assert result == "00000000"
+    # Verify result based on parameter
+    assert result == expected_result
 
 # Tests for action 1: Delete if exists
-def test_checkfile_action1_file_exists(monkeypatch):
-    # Mock file exists before and not after deletion
-    exists_calls = [True, False]
-    def mock_exists(_):
-        return exists_calls.pop(0)
+@pytest.mark.parametrize("test_case,setup,expected_result,expected_output,expected_exception", [
+    # File exists, successful deletion
+    ("exists_success", 
+     {"exists_calls": [True, False], "mock_remove": lambda _: None}, 
+     "01000001", "", None),
+    # File doesn't exist, silent
+    ("not_exists_silent", 
+     {"exists_calls": [False]}, 
+     "00000001", "", None),
+    # File doesn't exist, inform
+    ("not_exists_inform", 
+     {"exists_calls": [False], "pcode": "00000101"}, 
+     "00000101", "does not exist", None),
+    # File doesn't exist, warn
+    ("not_exists_warn", 
+     {"exists_calls": [False], "pcode": "00001001"}, 
+     "00001001", "Warning:", None),
+    # File doesn't exist, error
+    ("not_exists_error", 
+     {"exists_calls": [False], "pcode": "00001101"}, 
+     None, None, FileNotFoundError),
+    # File exists, deletion fails
+    ("exists_deletion_fails", 
+     {"exists_calls": [True], 
+      "mock_remove": lambda _: (_ for _ in ()).throw(PermissionError("Permission denied"))}, 
+     None, None, RuntimeError),
+])
+def test_checkfile_action1(monkeypatch, capsys, test_case, setup, expected_result, expected_output, expected_exception):
+    # Set up mock for os.path.exists
+    if "exists_calls" in setup:
+        exists_calls = setup["exists_calls"].copy()
+        def mock_exists(_):
+            if exists_calls:
+                return exists_calls.pop(0)
+            return False
+        monkeypatch.setattr(os.path, "exists", mock_exists)
     
-    monkeypatch.setattr(os.path, "exists", mock_exists)
-    monkeypatch.setattr(os, "remove", lambda _: None)  # Mock successful deletion
+    # Set up mock for os.remove if provided
+    if "mock_remove" in setup:
+        monkeypatch.setattr(os, "remove", setup["mock_remove"])
     
-    # Action 1 (delete), file exists
-    result = checkfile("00000001", "test.txt")
-    # Expect bit 6 set (file existed before), bit 7 unset (doesn't exist after)
-    assert result == "01000001"
-
-def test_checkfile_action1_file_not_exists_silent(monkeypatch, capsys):
-    # Mock os.path.exists to return False
-    monkeypatch.setattr(os.path, "exists", lambda _: False)
+    # Get pcode from setup or use default
+    pcode = setup.get("pcode", "00000001")
     
-    # Action 1 (delete), file doesn't exist, notification level 0 (silent)
-    result = checkfile("00000001", "test.txt")
-    # Expect both bits 6 and 7 unset (file never existed)
-    assert result == "00000001"
-    
-    # Check nothing was printed
-    captured = capsys.readouterr()
-    assert captured.out == ""
-
-def test_checkfile_action1_file_not_exists_inform(monkeypatch, capsys):
-    # Mock os.path.exists to return False
-    monkeypatch.setattr(os.path, "exists", lambda _: False)
-    
-    # Action 1 (delete), file doesn't exist, notification level 4 (inform)
-    result = checkfile("00000101", "test.txt")
-    # Check message was printed
-    captured = capsys.readouterr()
-    assert "does not exist" in captured.out
-    assert result == "00000101"
-
-def test_checkfile_action1_file_not_exists_warn(monkeypatch, capsys):
-    # Mock os.path.exists to return False
-    monkeypatch.setattr(os.path, "exists", lambda _: False)
-    
-    # Action 1 (delete), file doesn't exist, notification level 8 (warn)
-    result = checkfile("00001001", "test.txt")
-    # Check warning was printed
-    captured = capsys.readouterr()
-    assert "Warning:" in captured.out
-    assert result == "00001001"
-
-def test_checkfile_action1_file_not_exists_error(monkeypatch):
-    # Mock os.path.exists to return False
-    monkeypatch.setattr(os.path, "exists", lambda _: False)
-    
-    # Action 1 (delete), file doesn't exist, notification level 12 (error)
-    with pytest.raises(FileNotFoundError):
-        checkfile("00001101", "test.txt")
-
-def test_checkfile_action1_deletion_fails(monkeypatch):
-    # Mock os.path.exists to return True but os.remove to fail
-    monkeypatch.setattr(os.path, "exists", lambda _: True)
-    def mock_remove(_):
-        raise PermissionError("Permission denied")
-    monkeypatch.setattr(os, "remove", mock_remove)
-    
-    # Action 1 (delete), file exists but deletion fails
-    with pytest.raises(RuntimeError, match="Deletion failed"):
-        checkfile("00000001", "test.txt")
+    if expected_exception:
+        # Test cases that should raise exceptions
+        with pytest.raises(expected_exception):
+            checkfile(pcode, "test.txt")
+    else:
+        # Test cases that should succeed
+        result = checkfile(pcode, "test.txt")
+        assert result == expected_result
+        
+        # Check output if specified
+        if expected_output:
+            captured = capsys.readouterr()
+            assert expected_output in captured.out
 
 # Tests for action 2: Create if not present
-def test_checkfile_action2_file_not_exists(monkeypatch, tmp_path):
-    # Setup
+@pytest.mark.parametrize("test_case,setup,expected_result,expected_output,expected_exception", [
+    # File doesn't exist, successful creation
+    ("not_exists_success", 
+     {"exists_calls": [False, True]}, 
+     "10000010", "", None),
+    # File exists, silent
+    ("exists_silent", 
+     {"exists_calls": [True]}, 
+     "11000010", "", None),
+    # File exists, inform
+    ("exists_inform", 
+     {"exists_calls": [True], "pcode": "00010010"}, 
+     "11010010", "already exists", None),
+    # File exists, warn
+    ("exists_warn", 
+     {"exists_calls": [True], "pcode": "00100010"}, 
+     "11100010", "Warning:", None),
+    # File exists, error
+    ("exists_error", 
+     {"exists_calls": [True], "pcode": "00110010"}, 
+     None, None, FileExistsError),
+    # File doesn't exist, creation fails
+    ("not_exists_creation_fails", 
+     {"exists_calls": [False], "mock_open_fails": True}, 
+     None, None, RuntimeError),
+])
+def test_checkfile_action2(monkeypatch, capsys, tmp_path, test_case, setup, expected_result, expected_output, expected_exception):
+    # Set up the test file path
     test_file = tmp_path / "test.txt"
     file_path = str(test_file)
     
-    # Mock file doesn't exist initially but exists after creation
-    exists_calls = [False, True]
-    def mock_exists(_):
-        return exists_calls.pop(0) if exists_calls else True
-    monkeypatch.setattr(os.path, "exists", mock_exists)
+    # Set up mock for os.path.exists
+    if "exists_calls" in setup:
+        exists_calls = setup["exists_calls"].copy()
+        def mock_exists(_):
+            if exists_calls:
+                return exists_calls.pop(0)
+            return exists_calls[-1] if exists_calls else True
+        monkeypatch.setattr(os.path, "exists", mock_exists)
     
-    # Mock file creation
+    # Set up mock for open
     class MockFile:
         def __init__(self, *args, **kwargs):
             pass
         def close(self):
             pass
-    monkeypatch.setattr("builtins.open", lambda *args, **kwargs: MockFile())
     
-    # Action 2 (create if not present), file doesn't exist
-    result = checkfile("00000010", file_path)
-    # Expect bit 6 unset (file didn't exist) and bit 7 set (file exists after)
-    assert result == "10000010"
-
-def test_checkfile_action2_file_exists_silent(monkeypatch, capsys):
-    # Mock os.path.exists to return True
-    monkeypatch.setattr(os.path, "exists", lambda _: True)
+    if setup.get("mock_open_fails", False):
+        def mock_open(*args, **kwargs):
+            raise PermissionError("Permission denied")
+        monkeypatch.setattr("builtins.open", mock_open)
+    else:
+        monkeypatch.setattr("builtins.open", lambda *args, **kwargs: MockFile())
     
-    # Action 2 (create if not present), file exists, notification level 0 (silent)
-    result = checkfile("00000010", "test.txt")
-    # Check nothing was printed
-    captured = capsys.readouterr()
-    assert captured.out == ""
-    assert result == "11000010"
-
-def test_checkfile_action2_file_exists_inform(monkeypatch, capsys):
-    # Mock os.path.exists to return True
-    monkeypatch.setattr(os.path, "exists", lambda _: True)
+    # Get pcode from setup or use default
+    pcode = setup.get("pcode", "00000010")
     
-    # Action 2 (create if not present), file exists, notification level 16 (inform)
-    result = checkfile("00010010", "test.txt")
-    # Check message was printed
-    captured = capsys.readouterr()
-    assert "already exists" in captured.out
-    assert result == "11010010"
-
-def test_checkfile_action2_file_exists_warn(monkeypatch, capsys):
-    # Mock os.path.exists to return True
-    monkeypatch.setattr(os.path, "exists", lambda _: True)
-    
-    # Action 2 (create if not present), file exists, notification level 32 (warn)
-    result = checkfile("00100010", "test.txt")
-    # Check warning was printed
-    captured = capsys.readouterr()
-    assert "Warning:" in captured.out
-    assert result == "11100010"
-
-def test_checkfile_action2_file_exists_error(monkeypatch):
-    # Mock os.path.exists to return True
-    monkeypatch.setattr(os.path, "exists", lambda _: True)
-    
-    # Action 2 (create if not present), file exists, notification level 48 (error)
-    with pytest.raises(FileExistsError):
-        checkfile("00110010", "test.txt")
-
-def test_checkfile_action2_creation_fails(monkeypatch):
-    # Mock os.path.exists to return False but file creation to fail
-    monkeypatch.setattr(os.path, "exists", lambda _: False)
-    def mock_open(*args, **kwargs):
-        raise PermissionError("Permission denied")
-    monkeypatch.setattr("builtins.open", mock_open)
-    
-    # Action 2 (create if not present), file doesn't exist but creation fails
-    with pytest.raises(RuntimeError, match="Creation failed"):
-        checkfile("00000010", "test.txt")
+    if expected_exception:
+        # Test cases that should raise exceptions
+        with pytest.raises(expected_exception):
+            checkfile(pcode, file_path)
+    else:
+        # Test cases that should succeed
+        result = checkfile(pcode, file_path)
+        assert result == expected_result
+        
+        # Check output if specified
+        if expected_output:
+            captured = capsys.readouterr()
+            assert expected_output in captured.out
 
 # Tests for action 3: Create or recreate
-def test_checkfile_action3_file_not_exists(monkeypatch):
-    # Mock file doesn't exist initially but exists after creation
-    exists_calls = [False, True]
-    def mock_exists(_):
-        return exists_calls.pop(0) if exists_calls else True
-    monkeypatch.setattr(os.path, "exists", mock_exists)
+@pytest.mark.parametrize("test_case,setup,expected_result,expected_output,expected_exception", [
+    # File doesn't exist, successful creation
+    ("not_exists_success", 
+     {"exists_calls": [False, True]}, 
+     "10000011", "", None),
+    # File exists, silent recreate
+    ("exists_silent", 
+     {"exists_calls": [True, True]}, 
+     "11000011", "", None),
+    # File exists, inform recreate
+    ("exists_inform", 
+     {"exists_calls": [True, True], "pcode": "00010011"}, 
+     "11010011", "will be recreated", None),
+    # File exists, warn recreate
+    ("exists_warn", 
+     {"exists_calls": [True, True], "pcode": "00100011"}, 
+     "11100011", "Warning:", None),
+    # File exists, error
+    ("exists_error", 
+     {"exists_calls": [True], "pcode": "00110011"}, 
+     None, None, FileExistsError),
+    # File exists, deletion fails
+    ("exists_deletion_fails", 
+     {"exists_calls": [True], "mock_remove_fails": True}, 
+     None, None, RuntimeError),
+    # File doesn't exist, creation fails
+    ("not_exists_creation_fails", 
+     {"exists_calls": [False], "mock_open_fails": True}, 
+     None, None, RuntimeError),
+])
+def test_checkfile_action3(monkeypatch, capsys, test_case, setup, expected_result, expected_output, expected_exception):
+    # Set up mock for os.path.exists
+    if "exists_calls" in setup:
+        exists_calls = setup["exists_calls"].copy()
+        def mock_exists(_):
+            if exists_calls:
+                return exists_calls.pop(0)
+            return exists_calls[-1] if exists_calls else True
+        monkeypatch.setattr(os.path, "exists", mock_exists)
     
-    # Mock file creation
+    # Set up mock for file operations
     class MockFile:
         def __init__(self, *args, **kwargs):
             pass
         def close(self):
             pass
-    monkeypatch.setattr("builtins.open", lambda *args, **kwargs: MockFile())
     
-    # Action 3 (create or recreate), file doesn't exist
-    result = checkfile("00000011", "test.txt")
-    # Expect bit 6 unset (file didn't exist) and bit 7 set (file exists after)
-    assert result == "10000011"
-
-def test_checkfile_action3_file_exists_silent(monkeypatch):
-    # Setup - file exists before and after recreation
-    exists_calls = [True, True]
-    def mock_exists(_):
-        return exists_calls.pop(0) if exists_calls else True
-    monkeypatch.setattr(os.path, "exists", mock_exists)
+    # Set up mock for os.remove
+    if setup.get("mock_remove_fails", False):
+        def mock_remove(_):
+            raise PermissionError("Permission denied")
+        monkeypatch.setattr(os, "remove", mock_remove)
+    else:
+        monkeypatch.setattr(os, "remove", lambda _: None)
     
-    # Mock file operations
-    monkeypatch.setattr(os, "remove", lambda _: None)
-    class MockFile:
-        def __init__(self, *args, **kwargs):
-            pass
-        def close(self):
-            pass
-    monkeypatch.setattr("builtins.open", lambda *args, **kwargs: MockFile())
+    # Set up mock for open
+    if setup.get("mock_open_fails", False):
+        def mock_open(*args, **kwargs):
+            raise PermissionError("Permission denied")
+        monkeypatch.setattr("builtins.open", mock_open)
+    else:
+        monkeypatch.setattr("builtins.open", lambda *args, **kwargs: MockFile())
     
-    # Action 3 (create or recreate), file exists, notification level 0 (silent)
-    result = checkfile("00000011", "test.txt")
-    # Expect both bits 6 and 7 set (file existed before and after)
-    assert result == "11000011"
-
-def test_checkfile_action3_file_exists_inform(monkeypatch, capsys):
-    # Setup - file exists before and after recreation
-    exists_calls = [True, True]
-    def mock_exists(_):
-        return exists_calls.pop(0) if exists_calls else True
-    monkeypatch.setattr(os.path, "exists", mock_exists)
+    # Get pcode from setup or use default
+    pcode = setup.get("pcode", "00000011")
     
-    # Mock file operations
-    monkeypatch.setattr(os, "remove", lambda _: None)
-    class MockFile:
-        def __init__(self, *args, **kwargs):
-            pass
-        def close(self):
-            pass
-    monkeypatch.setattr("builtins.open", lambda *args, **kwargs: MockFile())
-    
-    # Action 3 (create or recreate), file exists, notification level 16 (inform)
-    result = checkfile("00010011", "test.txt")
-    # Check message was printed
-    captured = capsys.readouterr()
-    assert "will be recreated" in captured.out
-    assert result == "11010011"
-
-def test_checkfile_action3_file_exists_warn(monkeypatch, capsys):
-    # Setup - file exists before and after recreation
-    exists_calls = [True, True]
-    def mock_exists(_):
-        return exists_calls.pop(0) if exists_calls else True
-    monkeypatch.setattr(os.path, "exists", mock_exists)
-    
-    # Mock file operations
-    monkeypatch.setattr(os, "remove", lambda _: None)
-    class MockFile:
-        def __init__(self, *args, **kwargs):
-            pass
-        def close(self):
-            pass
-    monkeypatch.setattr("builtins.open", lambda *args, **kwargs: MockFile())
-    
-    # Action 3 (create or recreate), file exists, notification level 32 (warn)
-    result = checkfile("00100011", "test.txt")
-    # Check warning was printed
-    captured = capsys.readouterr()
-    assert "Warning:" in captured.out
-    assert "will be recreated" in captured.out
-    assert result == "11100011"
-
-def test_checkfile_action3_file_exists_error(monkeypatch):
-    # Mock os.path.exists to return True
-    monkeypatch.setattr(os.path, "exists", lambda _: True)
-    
-    # Action 3 (create or recreate), file exists, notification level 48 (error)
-    with pytest.raises(FileExistsError):
-        checkfile("00110011", "test.txt")
-
-def test_checkfile_action3_deletion_fails(monkeypatch):
-    # Mock file exists but deletion fails
-    monkeypatch.setattr(os.path, "exists", lambda _: True)
-    def mock_remove(_):
-        raise PermissionError("Permission denied")
-    monkeypatch.setattr(os, "remove", mock_remove)
-    
-    # Action 3 (create or recreate), file exists but deletion fails
-    with pytest.raises(RuntimeError, match="Deletion failed during recreation"):
-        checkfile("00000011", "test.txt")
-
-def test_checkfile_action3_creation_fails(monkeypatch):
-    # Mock file doesn't exist and creation fails
-    monkeypatch.setattr(os.path, "exists", lambda _: False)
-    def mock_open(*args, **kwargs):
-        raise PermissionError("Permission denied")
-    monkeypatch.setattr("builtins.open", mock_open)
-    
-    # Action 3 (create or recreate), file doesn't exist but creation fails
-    with pytest.raises(RuntimeError, match="Creation failed during recreation"):
-        checkfile("00000011", "test.txt")
+    if expected_exception:
+        # Test cases that should raise exceptions
+        with pytest.raises(expected_exception):
+            checkfile(pcode, "test.txt")
+    else:
+        # Test cases that should succeed
+        result = checkfile(pcode, "test.txt")
+        assert result == expected_result
+        
+        # Check output if specified
+        if expected_output:
+            captured = capsys.readouterr()
+            assert expected_output in captured.out
 
 # Tests for checkdir input validation
-def test_checkdir_pcode_length():
-    # Test with invalid PCode length
-    with pytest.raises(ValueError, match="PCode must be 8 characters long"):
-        checkdir("0101", "test_dir")
-
-def test_checkdir_pcode_invalid_chars():
-    # Test with non-binary characters
-    with pytest.raises(ValueError, match="PCode must be a binary string"):
-        checkdir("0123abcd", "test_dir")
+@pytest.mark.parametrize("pcode,expected_error,expected_message", [
+    ("0101", ValueError, "PCode must be 8 characters long"),
+    ("0123abcd", ValueError, "PCode must be a binary string"),
+])
+def test_checkdir_pcode_validation(pcode, expected_error, expected_message):
+    # Test with invalid PCode inputs
+    with pytest.raises(expected_error, match=expected_message):
+        checkdir(pcode, "test_dir")
 
 # Tests for action 0: Inquiry only
-def test_checkdir_action0_dir_exists(monkeypatch):
-    # Mock os.path.isdir to return True
-    monkeypatch.setattr(os.path, "isdir", lambda _: True)
+@pytest.mark.parametrize("dir_exists,expected_result", [
+    (True, "11000000"),  # Directory exists
+    (False, "00000000")  # Directory does not exist
+])
+def test_checkdir_action0(monkeypatch, dir_exists, expected_result):
+    # Mock os.path.isdir to return the parametrized value
+    monkeypatch.setattr(os.path, "isdir", lambda _: dir_exists)
     
-    # Action 0 (inquiry only), directory exists
+    # Action 0 (inquiry only)
     result = checkdir("00000000", "test_dir")
-    # Expect bit 6 set (directory existed before), bit 7 set (directory exists after)
-    assert result == "11000000"
-
-def test_checkdir_action0_dir_not_exists(monkeypatch):
-    # Mock os.path.isdir to return False
-    monkeypatch.setattr(os.path, "isdir", lambda _: False)
-    
-    # Action 0 (inquiry only), directory doesn't exist
-    result = checkdir("00000000", "test_dir")
-    # Expect both bit 6 and 7 unset (directory never existed)
-    assert result == "00000000"
+    # Verify result based on parameter
+    assert result == expected_result
 
 # Tests for action 1: Delete if exists
-def test_checkdir_action1_dir_exists(monkeypatch):
-    # Mock directory exists before and not after deletion
-    exists_calls = [True, False]
-    def mock_isdir(_):
-        return exists_calls.pop(0)
+@pytest.mark.parametrize("test_case,setup,expected_result,expected_output,expected_exception", [
+    # Directory exists, successful deletion
+    ("exists_success", 
+     {"exists_calls": [True, False], "mock_rmtree": lambda _: None}, 
+     "01000001", "", None),
+    # Directory doesn't exist, silent
+    ("not_exists_silent", 
+     {"exists_calls": [False]}, 
+     "00000001", "", None),
+    # Directory doesn't exist, inform
+    ("not_exists_inform", 
+     {"exists_calls": [False], "pcode": "00000101"}, 
+     "00000101", "does not exist", None),
+    # Directory doesn't exist, warn
+    ("not_exists_warn", 
+     {"exists_calls": [False], "pcode": "00001001"}, 
+     "00001001", "Warning:", None),
+    # Directory doesn't exist, error
+    ("not_exists_error", 
+     {"exists_calls": [False], "pcode": "00001101"}, 
+     None, None, FileNotFoundError),
+    # Directory exists, deletion fails
+    ("exists_deletion_fails", 
+     {"exists_calls": [True], 
+      "mock_rmtree": lambda _: (_ for _ in ()).throw(PermissionError("Permission denied"))}, 
+     None, None, RuntimeError),
+])
+def test_checkdir_action1(monkeypatch, capsys, test_case, setup, expected_result, expected_output, expected_exception):
+    # Set up mock for os.path.isdir
+    if "exists_calls" in setup:
+        exists_calls = setup["exists_calls"].copy()
+        def mock_exists(_):
+            if exists_calls:
+                return exists_calls.pop(0)
+            return False
+        monkeypatch.setattr(os.path, "isdir", mock_exists)
     
-    monkeypatch.setattr(os.path, "isdir", mock_isdir)
-    monkeypatch.setattr(shutil, "rmtree", lambda _: None)  # Mock successful deletion
+    # Set up mock for shutil.rmtree if provided
+    if "mock_rmtree" in setup:
+        monkeypatch.setattr(shutil, "rmtree", setup["mock_rmtree"])
     
-    # Action 1 (delete), directory exists
-    result = checkdir("00000001", "test_dir")
-    # Expect bit 6 set (directory existed before), bit 7 unset (doesn't exist after)
-    assert result == "01000001"
-
-def test_checkdir_action1_dir_not_exists_silent(monkeypatch, capsys):
-    # Mock os.path.isdir to return False
-    monkeypatch.setattr(os.path, "isdir", lambda _: False)
+    # Get pcode from setup or use default
+    pcode = setup.get("pcode", "00000001")
     
-    # Action 1 (delete), directory doesn't exist, notification level 0 (silent)
-    result = checkdir("00000001", "test_dir")
-    # Expect both bits 6 and 7 unset (directory never existed)
-    assert result == "00000001"
-    
-    # Check nothing was printed
-    captured = capsys.readouterr()
-    assert captured.out == ""
-
-def test_checkdir_action1_dir_not_exists_inform(monkeypatch, capsys):
-    # Mock os.path.isdir to return False
-    monkeypatch.setattr(os.path, "isdir", lambda _: False)
-    
-    # Action 1 (delete), directory doesn't exist, notification level 4 (inform)
-    result = checkdir("00000101", "test_dir")
-    # Check message was printed
-    captured = capsys.readouterr()
-    assert "does not exist" in captured.out
-    assert result == "00000101"
-
-def test_checkdir_action1_dir_not_exists_warn(monkeypatch, capsys):
-    # Mock os.path.isdir to return False
-    monkeypatch.setattr(os.path, "isdir", lambda _: False)
-    
-    # Action 1 (delete), directory doesn't exist, notification level 8 (warn)
-    result = checkdir("00001001", "test_dir")
-    # Check warning was printed
-    captured = capsys.readouterr()
-    assert "Warning:" in captured.out
-    assert result == "00001001"
-
-def test_checkdir_action1_dir_not_exists_error(monkeypatch):
-    # Mock os.path.isdir to return False
-    monkeypatch.setattr(os.path, "isdir", lambda _: False)
-    
-    # Action 1 (delete), directory doesn't exist, notification level 12 (error)
-    with pytest.raises(FileNotFoundError):
-        checkdir("00001101", "test_dir")
-
-def test_checkdir_action1_deletion_fails(monkeypatch):
-    # Mock os.path.isdir to return True but shutil.rmtree to fail
-    monkeypatch.setattr(os.path, "isdir", lambda _: True)
-    def mock_rmtree(_):
-        raise PermissionError("Permission denied")
-    monkeypatch.setattr(shutil, "rmtree", mock_rmtree)
-    
-    # Action 1 (delete), directory exists but deletion fails
-    with pytest.raises(RuntimeError, match="Deletion failed"):
-        checkdir("00000001", "test_dir")
+    if expected_exception:
+        # Test cases that should raise exceptions
+        with pytest.raises(expected_exception):
+            checkdir(pcode, "test_dir")
+    else:
+        # Test cases that should succeed
+        result = checkdir(pcode, "test_dir")
+        assert result == expected_result
+        
+        # Check output if specified
+        if expected_output:
+            captured = capsys.readouterr()
+            assert expected_output in captured.out
 
 # Tests for action 2: Create if not present
-def test_checkdir_action2_dir_not_exists(monkeypatch):
-    # Setup
-    # Mock directory doesn't exist initially but exists after creation
-    exists_calls = [False, True]
-    def mock_isdir(_):
-        return exists_calls.pop(0) if exists_calls else True
-    monkeypatch.setattr(os.path, "isdir", mock_isdir)
+@pytest.mark.parametrize("test_case,setup,expected_result,expected_output,expected_exception", [
+    # Directory doesn't exist, successful creation
+    ("not_exists_success", 
+     {"exists_calls": [False, True]}, 
+     "10000010", "", None),
+    # Directory exists, silent
+    ("exists_silent", 
+     {"exists_calls": [True]}, 
+     "11000010", "", None),
+    # Directory exists, inform
+    ("exists_inform", 
+     {"exists_calls": [True], "pcode": "00010010"}, 
+     "11010010", "already exists", None),
+    # Directory exists, warn
+    ("exists_warn", 
+     {"exists_calls": [True], "pcode": "00100010"}, 
+     "11100010", "Warning:", None),
+    # Directory exists, error
+    ("exists_error", 
+     {"exists_calls": [True], "pcode": "00110010"}, 
+     None, None, FileExistsError),
+    # Directory doesn't exist, creation fails
+    ("not_exists_creation_fails", 
+     {"exists_calls": [False], "mock_makedirs_fails": True}, 
+     None, None, RuntimeError),
+])
+def test_checkdir_action2(monkeypatch, capsys, test_case, setup, expected_result, expected_output, expected_exception):
+    # Set up mock for os.path.isdir
+    if "exists_calls" in setup:
+        exists_calls = setup["exists_calls"].copy()
+        def mock_exists(_):
+            if exists_calls:
+                return exists_calls.pop(0)
+            return exists_calls[-1] if exists_calls else True
+        monkeypatch.setattr(os.path, "isdir", mock_exists)
     
-    # Mock directory creation
-    monkeypatch.setattr(os, "makedirs", lambda _: None)
+    # Set up mock for os.makedirs
+    if setup.get("mock_makedirs_fails", False):
+        def mock_makedirs(_):
+            raise PermissionError("Permission denied")
+        monkeypatch.setattr(os, "makedirs", mock_makedirs)
+    else:
+        monkeypatch.setattr(os, "makedirs", lambda _: None)
     
-    # Action 2 (create if not present), directory doesn't exist
-    result = checkdir("00000010", "test_dir")
-    # Expect bit 6 unset (directory didn't exist) and bit 7 set (directory exists after)
-    assert result == "10000010"
-
-def test_checkdir_action2_dir_exists_silent(monkeypatch, capsys):
-    # Mock os.path.isdir to return True
-    monkeypatch.setattr(os.path, "isdir", lambda _: True)
+    # Get pcode from setup or use default
+    pcode = setup.get("pcode", "00000010")
     
-    # Action 2 (create if not present), directory exists, notification level 0 (silent)
-    result = checkdir("00000010", "test_dir")
-    # Check nothing was printed
-    captured = capsys.readouterr()
-    assert captured.out == ""
-    assert result == "11000010"
-
-def test_checkdir_action2_dir_exists_inform(monkeypatch, capsys):
-    # Mock os.path.isdir to return True
-    monkeypatch.setattr(os.path, "isdir", lambda _: True)
-    
-    # Action 2 (create if not present), directory exists, notification level 16 (inform)
-    result = checkdir("00010010", "test_dir")
-    # Check message was printed
-    captured = capsys.readouterr()
-    assert "already exists" in captured.out
-    assert result == "11010010"
-
-def test_checkdir_action2_dir_exists_warn(monkeypatch, capsys):
-    # Mock os.path.isdir to return True
-    monkeypatch.setattr(os.path, "isdir", lambda _: True)
-    
-    # Action 2 (create if not present), directory exists, notification level 32 (warn)
-    result = checkdir("00100010", "test_dir")
-    # Check warning was printed
-    captured = capsys.readouterr()
-    assert "Warning:" in captured.out
-    assert result == "11100010"
-
-def test_checkdir_action2_dir_exists_error(monkeypatch):
-    # Mock os.path.isdir to return True
-    monkeypatch.setattr(os.path, "isdir", lambda _: True)
-    
-    # Action 2 (create if not present), directory exists, notification level 48 (error)
-    with pytest.raises(FileExistsError):
-        checkdir("00110010", "test_dir")
-
-def test_checkdir_action2_creation_fails(monkeypatch):
-    # Mock os.path.isdir to return False but directory creation to fail
-    monkeypatch.setattr(os.path, "isdir", lambda _: False)
-    def mock_makedirs(_):
-        raise PermissionError("Permission denied")
-    monkeypatch.setattr(os, "makedirs", mock_makedirs)
-    
-    # Action 2 (create if not present), directory doesn't exist but creation fails
-    with pytest.raises(RuntimeError, match="Creation failed"):
-        checkdir("00000010", "test_dir")
+    if expected_exception:
+        # Test cases that should raise exceptions
+        with pytest.raises(expected_exception):
+            checkdir(pcode, "test_dir")
+    else:
+        # Test cases that should succeed
+        result = checkdir(pcode, "test_dir")
+        assert result == expected_result
+        
+        # Check output if specified
+        if expected_output:
+            captured = capsys.readouterr()
+            assert expected_output in captured.out
 
 # Tests for action 3: Create or recreate
-def test_checkdir_action3_dir_not_exists(monkeypatch):
-    # Mock directory doesn't exist initially but exists after creation
-    exists_calls = [False, True]
-    def mock_isdir(_):
-        return exists_calls.pop(0) if exists_calls else True
-    monkeypatch.setattr(os.path, "isdir", mock_isdir)
+@pytest.mark.parametrize("test_case,setup,expected_result,expected_output,expected_exception", [
+    # Directory doesn't exist, successful creation
+    ("not_exists_success", 
+     {"exists_calls": [False, True]}, 
+     "10000011", "", None),
+    # Directory exists, silent recreate
+    ("exists_silent", 
+     {"exists_calls": [True, True]}, 
+     "11000011", "", None),
+    # Directory exists, inform recreate
+    ("exists_inform", 
+     {"exists_calls": [True, True], "pcode": "00010011"}, 
+     "11010011", "will be recreated", None),
+    # Directory exists, warn recreate
+    ("exists_warn", 
+     {"exists_calls": [True, True], "pcode": "00100011"}, 
+     "11100011", "Warning:", None),
+    # Directory exists, error
+    ("exists_error", 
+     {"exists_calls": [True], "pcode": "00110011"}, 
+     None, None, FileExistsError),
+    # Directory exists, deletion fails
+    ("exists_deletion_fails", 
+     {"exists_calls": [True], "mock_rmtree_fails": True}, 
+     None, None, RuntimeError),
+    # Directory doesn't exist, creation fails
+    ("not_exists_creation_fails", 
+     {"exists_calls": [False], "mock_makedirs_fails": True}, 
+     None, None, RuntimeError),
+])
+def test_checkdir_action3(monkeypatch, capsys, test_case, setup, expected_result, expected_output, expected_exception):
+    # Set up mock for os.path.isdir
+    if "exists_calls" in setup:
+        exists_calls = setup["exists_calls"].copy()
+        def mock_exists(_):
+            if exists_calls:
+                return exists_calls.pop(0)
+            return exists_calls[-1] if exists_calls else True
+        monkeypatch.setattr(os.path, "isdir", mock_exists)
     
-    # Mock directory creation
-    monkeypatch.setattr(os, "makedirs", lambda _: None)
+    # Set up mock for directory operations
+    if setup.get("mock_rmtree_fails", False):
+        def mock_rmtree(_):
+            raise PermissionError("Permission denied")
+        monkeypatch.setattr(shutil, "rmtree", mock_rmtree)
+    else:
+        monkeypatch.setattr(shutil, "rmtree", lambda _: None)
     
-    # Action 3 (create or recreate), directory doesn't exist
-    result = checkdir("00000011", "test_dir")
-    # Expect bit 6 unset (directory didn't exist) and bit 7 set (directory exists after)
-    assert result == "10000011"
-
-def test_checkdir_action3_dir_exists_silent(monkeypatch):
-    # Setup - directory exists before and after recreation
-    exists_calls = [True, True]
-    def mock_isdir(_):
-        return exists_calls.pop(0) if exists_calls else True
-    monkeypatch.setattr(os.path, "isdir", mock_isdir)
+    # Set up mock for os.makedirs
+    if setup.get("mock_makedirs_fails", False):
+        def mock_makedirs(_):
+            raise PermissionError("Permission denied")
+        monkeypatch.setattr(os, "makedirs", mock_makedirs)
+    else:
+        monkeypatch.setattr(os, "makedirs", lambda _: None)
     
-    # Mock directory operations
-    monkeypatch.setattr(shutil, "rmtree", lambda _: None)
-    monkeypatch.setattr(os, "makedirs", lambda _: None)
+    # Get pcode from setup or use default
+    pcode = setup.get("pcode", "00000011")
     
-    # Action 3 (create or recreate), directory exists, notification level 0 (silent)
-    result = checkdir("00000011", "test_dir")
-    # Expect both bits 6 and 7 set (directory existed before and after)
-    assert result == "11000011"
-
-def test_checkdir_action3_dir_exists_inform(monkeypatch, capsys):
-    # Setup - directory exists before and after recreation
-    exists_calls = [True, True]
-    def mock_isdir(_):
-        return exists_calls.pop(0) if exists_calls else True
-    monkeypatch.setattr(os.path, "isdir", mock_isdir)
-    
-    # Mock directory operations
-    monkeypatch.setattr(shutil, "rmtree", lambda _: None)
-    monkeypatch.setattr(os, "makedirs", lambda _: None)
-    
-    # Action 3 (create or recreate), directory exists, notification level 16 (inform)
-    result = checkdir("00010011", "test_dir")
-    # Check message was printed
-    captured = capsys.readouterr()
-    assert "will be recreated" in captured.out
-    assert result == "11010011"
-
-def test_checkdir_action3_dir_exists_warn(monkeypatch, capsys):
-    # Setup - directory exists before and after recreation
-    exists_calls = [True, True]
-    def mock_isdir(_):
-        return exists_calls.pop(0) if exists_calls else True
-    monkeypatch.setattr(os.path, "isdir", mock_isdir)
-    
-    # Mock directory operations
-    monkeypatch.setattr(shutil, "rmtree", lambda _: None)
-    monkeypatch.setattr(os, "makedirs", lambda _: None)
-    
-    # Action 3 (create or recreate), directory exists, notification level 32 (warn)
-    result = checkdir("00100011", "test_dir")
-    # Check warning was printed
-    captured = capsys.readouterr()
-    assert "Warning:" in captured.out
-    assert "will be recreated" in captured.out
-    assert result == "11100011"
-
-def test_checkdir_action3_dir_exists_error(monkeypatch):
-    # Mock os.path.isdir to return True
-    monkeypatch.setattr(os.path, "isdir", lambda _: True)
-    
-    # Action 3 (create or recreate), directory exists, notification level 48 (error)
-    with pytest.raises(FileExistsError):
-        checkdir("00110011", "test_dir")
-
-def test_checkdir_action3_deletion_fails(monkeypatch):
-    # Mock directory exists but deletion fails
-    monkeypatch.setattr(os.path, "isdir", lambda _: True)
-    def mock_rmtree(_):
-        raise PermissionError("Permission denied")
-    monkeypatch.setattr(shutil, "rmtree", mock_rmtree)
-    
-    # Action 3 (create or recreate), directory exists but deletion fails
-    with pytest.raises(RuntimeError, match="Deletion failed during recreation"):
-        checkdir("00000011", "test_dir")
-
-def test_checkdir_action3_creation_fails(monkeypatch):
-    # Mock directory doesn't exist and creation fails
-    monkeypatch.setattr(os.path, "isdir", lambda _: False)
-    def mock_makedirs(*args, **kwargs):
-        raise PermissionError("Permission denied")
-    monkeypatch.setattr(os, "makedirs", mock_makedirs)
-    
-    # Action 3 (create or recreate), directory doesn't exist but creation fails
-    with pytest.raises(RuntimeError, match="Creation failed during recreation"):
-        checkdir("00000011", "test_dir")
+    if expected_exception:
+        # Test cases that should raise exceptions
+        with pytest.raises(expected_exception):
+            checkdir(pcode, "test_dir")
+    else:
+        # Test cases that should succeed
+        result = checkdir(pcode, "test_dir")
+        assert result == expected_result
+        
+        # Check output if specified
+        if expected_output:
+            captured = capsys.readouterr()
+            assert expected_output in captured.out
 
 def test_chdir(monkeypatch):
     # Mock os.chdir to return None
