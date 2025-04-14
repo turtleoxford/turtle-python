@@ -723,6 +723,15 @@ def blank(colour) -> int:
 @draw
 # If boundary is a negative number, then any colour is acceptable
 def fill(x: int, y: int, boundary: int | str):
+    """Fill the area of the canvas with the current colour.
+
+    :param x: x coordinate of the starting point
+    :type x: int
+    :param y: y coordinate of the starting point
+    :type y: int
+    :param boundary: colour of the border of the area to be filled
+    :type boundary: int | str
+    """
     if isinstance(boundary, str):
         boundary = colour_to_int(boundary)
     initcol = pixcol(x, y)
@@ -757,6 +766,14 @@ def get_key_code() -> int:
 # user interactions
 
 def on_press(event: Event):
+    """Handle key and mouse press events.
+    
+    Updates the internal state of the keyboard and mouse based on the event.
+    Records key symbols in the key buffer if it is enabled.
+    
+    :param event: the event triggered by a key or mouse press
+    :type event: Event
+    """
     TurtleCanvas._kshift = 128
     if event.keysym.startswith("Shift"):
         TurtleCanvas._kshift += 8
@@ -790,6 +807,14 @@ def on_press(event: Event):
         print(TurtleCanvas._key_sym, end="")
 
 def on_release(event: Event):
+    """Handle key and mouse release events.
+    
+    Updates the internal state to reflect released keys and mouse buttons.
+    Changes the status flags for the released buttons or keys.
+    
+    :param event: the event triggered by a key or mouse release
+    :type event: Event
+    """
     if event.type == EventType.KeyRelease:
         TurtleCanvas._key_code = -event.keycode
         keysym = event.keysym.split("_")[0]
@@ -804,6 +829,17 @@ def on_release(event: Event):
     TurtleCanvas._pressed_keys["mousekey"] *= -1
 
 def detect(key_sym, timeout) -> str:
+    """Wait for a specific key or mouse button to be pressed.
+    
+    Waits for the specified key symbol to be pressed, or until the timeout period expires.
+    
+    :param key_sym: the key symbol to detect
+    :type key_sym: str
+    :param timeout: the maximum time to wait in milliseconds, or 0 for no timeout
+    :type timeout: int
+    :return: the key symbol that was pressed, or an empty string if timeout occurred
+    :rtype: str
+    """
     rounds = timeout / 100
     if timeout == 0:
         rounds = maxint()
@@ -819,21 +855,52 @@ def detect(key_sym, timeout) -> str:
     return get_key_sym()
 
 def get_clickx() -> int:
+    """Return the x-coordinate of the last mouse click.
+    
+    The coordinate is scaled according to the canvas resolution.
+    
+    :return: the x-coordinate of the last mouse click
+    :rtype: int
+    """
     return int(TurtleCanvas._pressed_keys["clickx"] / TurtleCanvas._x_multiplier + TurtleCanvas._origin_x)
 
 def get_clicky() -> int:
+    """Return the y-coordinate of the last mouse click.
+    
+    The coordinate is scaled according to the canvas resolution.
+    
+    :return: the y-coordinate of the last mouse click
+    :rtype: int
+    """
     return int(TurtleCanvas._pressed_keys["clicky"] / TurtleCanvas._y_multiplier + TurtleCanvas._origin_y)
 
 def get_click() -> int:
+    """Return the mouse button that was clicked.
+    
+    :return: the identifier of the mouse button that was clicked
+    :rtype: int
+    """
     return TurtleCanvas._pressed_keys["click"]
 
 
 # Returns 0 for a key that was never pressed, kshift for one currently pressed and -kshift for one that was released
 def status(key_sym: str):
+    """Return the status of a key or mouse button.
+    
+    :param key_sym: the key symbol to check the status of
+    :type key_sym: str
+    :return: 0 for a key that was never pressed, kshift for one currently pressed and -kshift for one that was released
+    :rtype: int
+    """
     return TurtleCanvas._pressed_keys.get(key_sym, 0)
 
 
 def reset(key_sym: str):
+    """Reset the status of a key or mouse position.
+    
+    :param key_sym: the key symbol to reset
+    :type key_sym: str
+    """
     if key_sym == "mousex":
         TurtleCanvas._mousex = -1
     elif key_sym == "mousey":
@@ -844,6 +911,14 @@ def reset(key_sym: str):
 
 # turtle operations
 def new_turtle(arr: list[int]):
+    """Create a new turtle and save the current turtle state.
+    
+    Saves the current turtle state (position, direction, thickness, colour) and
+    creates a new turtle with the provided attributes.
+    
+    :param arr: a list containing the new turtle's attributes [x, y, direction, thickness, colour]
+    :type arr: list[int]
+    """
     TurtleCanvas._old_turtle = [
         TurtleCanvas._x,
         TurtleCanvas._y,
@@ -859,6 +934,11 @@ def new_turtle(arr: list[int]):
 
 
 def old_turtle():
+    """Restore the previously saved turtle state.
+    
+    Restores the turtle's position, direction, thickness, and colour to the values that were
+    saved when new_turtle() was called.
+    """
     TurtleCanvas._x = TurtleCanvas._old_turtle[0]
     TurtleCanvas._y = TurtleCanvas._old_turtle[1]
     TurtleCanvas._direction = TurtleCanvas._old_turtle[2]
@@ -868,40 +948,125 @@ def old_turtle():
 
 # non-canvas operations
 def randcol(n: int) -> int:
+    """Return a random colour from the colour list.
+    
+    :param n: the number of colours to consider (selects from indices 0 to n-1)
+    :type n: int
+    :return: a random colour from the colour list
+    :rtype: int
+    """
     return colour_list[random.randint(0, n - 1)]
 
 
 def rgb(n: int) -> int:
+    """Return a colour from the colour list.
+    
+    :param n: the index of the colour to return
+    :type n: int
+    :return: the colour at the specified index in the colour list
+    :rtype: int
+    """
     return colour_list[n]
 
 
 def mixcols(col1: int | str, col2: int | str, prop1: int, prop2: int) -> int:
+    """Mix two colours in the given proportions.
+    
+    :param col1: the first colour to mix
+    :type col1: int | str
+    :param col2: the second colour to mix
+    :type col2: int | str
+    :param prop1: the proportion of the first colour
+    :type prop1: int
+    :param prop2: the proportion of the second colour
+    :type prop2: int
+    :return: the mixed colour
+    :rtype: int
+    """
     col1 = colour_to_int(col1)
     col2 = colour_to_int(col2)
     return (col1 * prop1 + col2 * prop2) // (prop1 + prop2)
 
 
 def divmult(a: int, b: int, c: int) -> int:
+    """Divide a by b, multiply by c, and round to the nearest integer.
+    
+    :param a: the numerator
+    :type a: int
+    :param b: the denominator
+    :type b: int
+    :param c: the multiplier
+    :type c: int
+    :return: the result of (a/b)*c, rounded to the nearest integer
+    :rtype: int
+    """
     return int(round(a / b * c))
 
 
 def maxint() -> int:
+    """Return the maximum integer value.
+
+    :return: the maximum integer value
+    :rtype: int
+    """
     return sys.maxsize
 
 
 def antilog(a: int, b: int, mult: int) -> int:
+    """Calculate the antilogarithm (base 10) of a given value and multiply by a factor.
+    :param a: the numerator of the quantity to find the antilogarithm of
+    :type a: int
+    :param b: the denominator of the quantity to find the antilogarithm of
+    :type b: int
+    :param mult: the multiplier to apply to the result
+    :type mult: int
+    :return: the antilogarithm of a/b multiplied by mult
+    :rtype: int
+    """
     return math.pow(10, a / b) * mult
 
 
 def delete(s: str, idx: int, l: int) -> str:
+    """Delete a substring from a string.
+
+    :param s: the original string
+    :type s: str
+    :param idx: the starting index of the substring to delete
+    :type idx: int
+    :param l: the length of the substring to delete
+    :type l: int
+    :return: the modified string with the substring removed
+    :rtype: str
+    """
     return s[:idx] + s[idx + l:]
 
 
 def pad(s: str, padding: string, length: int) -> str:
+    """Pad a string with a specified character to a given length.
+
+    :param s: the original string
+    :type s: str
+    :param padding: the character to pad with
+    :type padding: str
+    :param length: the desired length of the string
+    :type length: int
+    :return: the padded string
+    :rtype: str
+    """
+
     return s.ljust(length, padding)
 
 
 def intdef(s, default: int) -> int:
+    """Convert the given value to an integer, returning a default value if conversion fails.
+
+    :param s: the value to convert
+    :param default: the default value to return if conversion fails
+    :type default: int
+    :return: the converted integer value or the default value
+    :rtype: int
+    """
+
     try:
         return int(s)
     except ValueError:
@@ -909,11 +1074,35 @@ def intdef(s, default: int) -> int:
 
 
 def qstr(a: int, b: int, decplaces: int) -> str:
+    """Format a division result as a string with a specified number of decimal places.
+
+    :param a: the numerator
+    :type a: int
+    :param b: the denominator
+    :type b: int
+    :param decplaces: the number of decimal places to format to
+    :type decplaces: int
+    :return: the formatted string
+    :rtype: str
+    """
+
     s = "{:." + str(decplaces) + "f}"
     return s.format(a / b)
 
 
 def qint(s: str, mult: int, default: int) -> int:
+    """Convert a string to a float, multiplying by a factor, and rounding it, and returning a default value if conversion fails.
+
+    :param s: the string to convert
+    :type s: str
+    :param mult: the multiplier to apply to the result
+    :type mult: int
+    :param default: the default value to return if conversion fails
+    :type default: int
+    :return: the converted integer value or the default value
+    :rtype: int
+    """
+
     try:
         return round(float(s) * mult)
     except ValueError:
@@ -1108,6 +1297,36 @@ def checkfile(pcode: str, file_name: str) -> str:
     return format(new_code, '08b')
 
 def checkdir(pcode: str, dir_name: str) -> str:
+    """Perform directory operations on the current working directory using the given PCode.
+    
+    Similar to checkfile function but operates on directories instead of files.
+    
+    bits 0-1: code AND 3 determines one of four different overall actions: 
+    0 merely enquires about the presence of a directory with the specified name; 
+    1 deletes the directory if it is present; 
+    2 creates it if not present; 
+    3 likewise creates it if not present, but if it already exists, recreates it anew. 
+    
+    bits 2-3: code AND 12 determines the notification level if no directory initially exists: 
+    0 is silent; 4 merely informs of its non-existence; 
+    8 warns of its non-existence; 12 stops the program with an error message. 
+    
+    bits 4-5: code AND 48 determines the notification level if the directory initially exists: 
+    0 is silent; 16 merely informs of its existence; 
+    32 warns of its existence; 48 stops the program with an error message. 
+    
+    bits 6-7: should be 0 on entry. 
+    On exit, bit 6 is set if and only if the directory existed prior to the instruction, 
+    while bit 7 is set if and only if the directory existed after the instruction.
+    
+    :param pcode: A binary string PCode to use for the directory operations
+    :type pcode: str
+    :param dir_name: the name of the directory to perform the operations on
+    :type dir_name: str
+    
+    :return: the PCode after the directory operations
+    :rtype: str
+    """
     # Validate PCode
     if len(pcode) != 8:
         raise ValueError("PCode must be 8 characters long")
