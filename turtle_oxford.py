@@ -1631,7 +1631,7 @@ def _find_dirs_files(pattern: str) -> list[str]:
     :rtype: list[str]
     """
     pattern = os.path.join(os.getcwd(), pattern)
-    return glob.glob(pattern, root_dir=os.getcwd)
+    return glob.glob(pattern, root_dir=os.getcwd())
 
 """A type alias for a mutable handle to store the index of the found directory or file.
 This is a workaround for the fact that Python does not support mutable integers.
