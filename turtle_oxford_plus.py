@@ -1,5 +1,5 @@
 """
-Turtle Oxford - a python library for the Oxford Turtle System
+Turtle Oxford Plus - a python library for the Oxford Turtle System with extended features
 """
 
 from contextlib import contextmanager
@@ -19,48 +19,122 @@ from datetime import datetime
 import glob
 import datetime as dt
 
-class TurtleCanvas:
-    """Class with mostly static member describing the turtle and the canvas.
+class Turtle:
+    """Represents a turtle's state.
     """
-    # Turtle vars
-    _direction: int = 0
-    _angles: int = 360
-    _x: int = 0
-    _y: int = 0
-    _thick: int = 1
-    _colour: str = "white"
-    _history: list[tuple[int, int]] = []
-    _old_turtle = []
-    _time: int = datetime.now()
-    _layer: int = 0
-    _layers: list[int] = [0]
-    # Canvas vars
-    _root: Tk | None = None
-    _canvas: Canvas | None = None
-    _home: tuple[int, int] = 0, 0
-    _origin_x: int = 0
-    _origin_y: int = 0
-    _pen: bool = True
-    _update: bool = True
-    _x_multiplier: float = 1
-    _y_multiplier: float = 1
-    _width: int = 0
-    _height: int = 0
-    # Input vars
-    _key_code: int = 0
-    _key_sym: str = ""
-    _kshift: int = 128
-    # Possible values: +kshift, -kshift (pressed and released respectively)
-    _pressed_keys: dict[str, int] = {}
-    _mousex: int = -1
-    _mousey: int = -1
-    # Search vars
-    _dir_search_results: list[str] = []
-    _file_search_results: list[str] = []
-    # Key buffer vars
-    _key_buffer: list = []
-    _key_buffer_size: int = 0
-    _key_echo: bool = False
+    def __init__(self, x = 0, y = 0, direction = 0, colour = "black", thick = 1, layer = 0, **kwargs):
+        self.x = x
+        self.y = y
+        self.direction = direction
+        self.colour = colour
+        self.thick = thick
+        self.layer = layer
+        self.parameters = {k: v for k, v in kwargs.items()}
+
+    def __repr__(self):
+        return f"Turtle(x={self.x}, y={self.y}, direction={self.direction}, colour={self.colour}, thick={self.thick}, layer={self.layer})"
+    
+    @property
+    def params(self):
+        return self.parameters
+    
+    @params.setter
+    def params(self, value):
+        self.parameters = value
+
+class TurtleCanvasClass:
+    """Singleton Class describing the turtle and the canvas.
+    """
+    def __init__(self):
+        # Turtle vars
+        self._history: list[tuple[int, int]] = []
+        self._turtles: list[Turtle] = [Turtle()]
+        self._current_turtle_index: int = 0
+        self._time: int = datetime.now()
+        self._layers: list[int] = [0]
+        self._angles: int = 360 # Change to turtle attribute
+        # Canvas vars
+        self._root: Tk | None = None
+        self._canvas: Canvas | None = None
+        self._home: tuple[int, int] = 0, 0
+        self._origin_x: int = 0
+        self._origin_y: int = 0
+        self._pen: bool = True
+        self._update: bool = True
+        self._x_multiplier: float = 1
+        self._y_multiplier: float = 1
+        self._width: int = 0
+        self._height: int = 0
+        # Input vars
+        self._key_code: int = 0
+        self._key_sym: str = ""
+        self._kshift: int = 128
+        # Possible values: +kshift, -kshift (pressed and released respectively)
+        self._pressed_keys: dict[str, int] = {}
+        self._mousex: int = -1
+        self._mousey: int = -1
+        # Search vars
+        self._dir_search_results: list[str] = []
+        self._file_search_results: list[str] = []
+        # Key buffer vars
+        self._key_buffer: list = []
+        self._key_buffer_size: int = 0
+        self._key_echo: bool = False
+
+    @property
+    def _current_turtle(self) -> Turtle:
+        """
+        Get the current turtle.
+        """
+        return self._turtles[self._current_turtle_index]
+
+    @property
+    def _x(self) -> int:
+        return self._turtles[self._current_turtle_index].x
+
+    @_x.setter
+    def _x(self, value: int):
+        self._turtles[self._current_turtle_index].x = value
+
+    @property
+    def _y(self) -> int:
+        return self._turtles[self._current_turtle_index].y
+
+    @_y.setter
+    def _y(self, value: int):
+        self._turtles[self._current_turtle_index].y = value
+
+    @property
+    def _direction(self) -> int:
+        return self._turtles[self._current_turtle_index].direction
+
+    @_direction.setter
+    def _direction(self, value: int):
+        self._turtles[self._current_turtle_index].direction = value
+
+    @property
+    def _thick(self) -> int:
+        return self._turtles[self._current_turtle_index].thick
+
+    @_thick.setter
+    def _thick(self, value: int):
+        self._turtles[self._current_turtle_index].thick = value
+
+    @property
+    def _colour(self) -> str:
+        return self._turtles[self._current_turtle_index].colour
+
+    @_colour.setter
+    def _colour(self, value: str):
+        self._turtles[self._current_turtle_index].colour = value
+
+    @property
+    def _layer(self) -> int:
+        return self._turtles[self._current_turtle_index].layer
+
+    @_layer.setter
+    def _layer(self, value: int):
+        self._turtles[self._current_turtle_index].layer = value
 
     def create(
         self,
@@ -79,41 +153,43 @@ class TurtleCanvas:
         :param height: the height of the canvas (Default: 500)
         :type height: int
         """
-        TurtleCanvas._width = width
-        TurtleCanvas._height = height
-        TurtleCanvas._root = Tk()
-        TurtleCanvas._root.title("Turtle")
+        self._width = width
+        self._height = height
+        self._root = Tk()
+        self._root.title("Turtle")
 
         self._frame = Frame(
-            self._root, width=TurtleCanvas._width, height=TurtleCanvas._height + 100
+            self._root, width=self._width, height=self._height + 100
         )
         self._frame.pack(expand=True, fill=BOTH)
         self._halt = Button(self._frame, text="HALT")
         self._halt.pack()
 
-        TurtleCanvas._canvas = Canvas(
+        self._canvas = Canvas(
             self._frame, bg="white", width=width, height=height
         )
-        TurtleCanvas._canvas.pack(side="bottom")
-        TurtleCanvas._canvas.focus_set()
-        TurtleCanvas._canvas.bind("<KeyPress>", on_press)
-        TurtleCanvas._canvas.bind("<KeyRelease>", on_release)
-        TurtleCanvas._canvas.bind("<ButtonPress>", on_press)
-        TurtleCanvas._canvas.bind("<ButtonRelease>", on_release)
+        self._canvas.pack(side="bottom")
+        self._canvas.focus_set()
+        self._canvas.bind("<KeyPress>", on_press)
+        self._canvas.bind("<KeyRelease>", on_release)
+        self._canvas.bind("<ButtonPress>", on_press)
+        self._canvas.bind("<ButtonRelease>", on_release)
 
         self._halt.bind("<ButtonRelease>", halt)
 
-        TurtleCanvas._origin_x, TurtleCanvas._origin_y = 0, 0
-        TurtleCanvas._home = width / 2, height / 2
-        TurtleCanvas._x, TurtleCanvas._y = TurtleCanvas._home
+        self._origin_x, self._origin_y = 0, 0
+        self._home = width / 2, height / 2
+        self._x, self._y = self._home
 
-    def refresh():
+    def refresh(self):
         """
         Refresh the canvas to display the latest drawings.
         """
-        if not TurtleCanvas._canvas:
+        if not self._canvas:
             logging.error("Canvas not lanuched, please create a canvas first.")
-        TurtleCanvas._root.update()
+        self._root.update()
+
+TurtleCanvas = TurtleCanvasClass()
 
 def _scale_x(x: int) -> float:
     """
@@ -167,10 +243,9 @@ def turtle_canvas(width: int = 500, height: int = 500):
     :param height: the height of the canvas (Default: 500)
     :type height: int
     """
-    canvas = TurtleCanvas()
     try:
-        canvas.create(width, height)
-        yield canvas
+        TurtleCanvas.create(width, height)
+        yield TurtleCanvas
     except TclError:
         logging.debug("Window closed")
     finally:
@@ -364,6 +439,54 @@ def set_layer(layer: int):
         TurtleCanvas._layers.append(layer)
         TurtleCanvas._layers.sort()
 
+def delete_layer(layer: int):
+    """Deletes all drawings on a specific layer.
+
+    :param layer: The layer to delete.
+    :type layer: int
+    """
+    if layer in TurtleCanvas._layers:
+        TurtleCanvas._canvas.delete(f"layer{layer}")
+        TurtleCanvas._layers.remove(layer)
+        if TurtleCanvas._layer == layer:
+            TurtleCanvas._layer = 0
+            if 0 not in TurtleCanvas._layers:
+                TurtleCanvas._layers.append(0)
+                TurtleCanvas._layers.sort()
+
+def change_layer_index(old_index: int, new_index: int):
+    """Changes the index of a specific layer.
+
+    :param old_index: The current index of the layer.
+    :type old_index: int
+    :param new_index: The new index of the layer.
+    :type new_index: int
+    """
+    if old_index in TurtleCanvas._layers:
+        TurtleCanvas._canvas.itemconfig(f"layer{old_index}", tags=f"layer{new_index}")
+        TurtleCanvas._layers.remove(old_index)
+        if new_index not in TurtleCanvas._layers:
+            TurtleCanvas._layers.append(new_index)
+            TurtleCanvas._layers.sort()
+        if TurtleCanvas._layer == old_index:
+            TurtleCanvas._layer = new_index
+
+def switch_layers(index1: int, index2: int):
+    """Switches the indices of two layers.
+
+    :param index1: The index of the first layer.
+    :type index1: int
+    :param index2: The index of the second layer.
+    :type index2: int
+    """
+    if index1 in TurtleCanvas._layers and index2 in TurtleCanvas._layers:
+        TurtleCanvas._canvas.itemconfig(f"layer{index1}", tags="temp_layer")
+        TurtleCanvas._canvas.itemconfig(f"layer{index2}", tags=f"layer{index1}")
+        TurtleCanvas._canvas.itemconfig("temp_layer", tags=f"layer{index2}")
+        if TurtleCanvas._layer == index1:
+            TurtleCanvas._layer = index2
+        elif TurtleCanvas._layer == index2:
+            TurtleCanvas._layer = index1
 
 def penup():
     """Pick up the pen, stop drawing.
@@ -421,7 +544,7 @@ def direction(degrees: int):
 def angles(degrees: int):
     """Change the number of degrees in a circle.
 
-    :param degrees: number of degrees in a circle 
+    :param degrees: number of degrees in a circle
     :type degrees: int
     """
     TurtleCanvas._angles = degrees
@@ -451,7 +574,6 @@ def draw(func: callable) -> callable:
     :rtype: callable
     """
     def inner(*args, **kwargs) -> int:
-        id: int = func(*args, **kwargs)
         id: int = func(*args, **kwargs)
         for layer in TurtleCanvas._layers:
             TurtleCanvas._canvas.tag_raise(f"layer{layer}")
@@ -934,41 +1056,53 @@ def reset(key_sym: str):
 
 
 # turtle operations
-def new_turtle(arr: list[int]):
-    """Create a new turtle and save the current turtle state.
-    
-    Saves the current turtle state (position, direction, thickness, colour) and
-    creates a new turtle with the provided attributes.
-    
-    :param arr: a list containing the new turtle's attributes [x, y, direction, thickness, colour]
-    :type arr: list[int]
+def new_turtle(turtle: Turtle):
+    """Adds a new turtle to the Canvas and switches to it.
+
+    :param turtle: the new turtle to use
+    :type turtle: Turtle
     """
-    TurtleCanvas._old_turtle = [
-        TurtleCanvas._x,
-        TurtleCanvas._y,
-        TurtleCanvas._direction,
-        TurtleCanvas._thick,
-        TurtleCanvas._colour,
-    ]
-    TurtleCanvas._x = arr[0]
-    TurtleCanvas._y = arr[1]
-    TurtleCanvas._direction = arr[2]
-    TurtleCanvas._thick = arr[3]
-    TurtleCanvas._colour = arr[4]
+    TurtleCanvas._turtles.append(turtle)
+    TurtleCanvas._current_turtle_index = len(TurtleCanvas._turtles) - 1
 
+    if turtle.layer not in TurtleCanvas._layers:
+        TurtleCanvas._layers.append(turtle.layer)
+        TurtleCanvas._layers.sort()
 
-def old_turtle():
-    """Restore the previously saved turtle state.
-    
-    Restores the turtle's position, direction, thickness, and colour to the values that were
-    saved when new_turtle() was called.
+def change_turtle(idx: int):
+    """Changes to a different turtle in the turtles array.
+
+    :param idx: the index of the turtle to switch to
+    :type idx: int
     """
-    TurtleCanvas._x = TurtleCanvas._old_turtle[0]
-    TurtleCanvas._y = TurtleCanvas._old_turtle[1]
-    TurtleCanvas._direction = TurtleCanvas._old_turtle[2]
-    TurtleCanvas._thick = TurtleCanvas._old_turtle[3]
-    TurtleCanvas._colour = TurtleCanvas._old_turtle[4]
+    TurtleCanvas._current_turtle_index = idx
 
+def remove_turtle(idx: int):
+    """Removes a turtle from the turtles array.
+
+    :param idx: the index of the turtle to remove
+    :type idx: int
+    """
+    if 0 <= idx < len(TurtleCanvas._turtles):
+        del TurtleCanvas._turtles[idx]
+        # If current turtle was removed, switch to the last turtle
+        TurtleCanvas._current_turtle_index = min(TurtleCanvas._current_turtle_index, len(TurtleCanvas._turtles) - 1)
+
+def turtles() -> list[Turtle]:
+    """Return a list of all turtles.
+
+    :return: a list of all turtles
+    :rtype: list[Turtle]
+    """
+    return TurtleCanvas._turtles
+
+def current_turtle() -> Turtle:
+    """Return the currently active turtle.
+
+    :return: the currently active turtle
+    :rtype: Turtle
+    """
+    return TurtleCanvas._turtles[TurtleCanvas._current_turtle_index]
 
 # non-canvas operations
 def randcol(n: int) -> int:
@@ -1913,4 +2047,4 @@ def timeset(millis: int):
     """
     TurtleCanvas._time = millis
 
-__module__ = "turtle_oxford"
+__module__ = "turtle_oxford_plus"
