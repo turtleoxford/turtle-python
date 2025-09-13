@@ -1,6 +1,6 @@
 """
 Turtle Oxford - a python library for the Oxford Turtle System
-Strict version of the turtle library, closer to the original Turtle System.
+A strict version of the turtle library, closer to the original Turtle System.
 """
 
 from contextlib import contextmanager
@@ -1947,4 +1947,4 @@ def timeset(millis: int):
     """
     TurtleCanvas._time = millis
 
-__module__ = "turtle_oxford"
+__module__ = "turtle_oxford_strict"
