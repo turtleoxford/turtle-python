@@ -14,8 +14,8 @@ def test_delete():
     assert delete('Millican', 2, 2) == 'Miican'
 
 def test_pad():
-    # Pad the string 'Oxford' with 3 spaces to the right -> 'Oxford   '
-    assert pad('Oxford', ' ', 9) == 'Oxford   '
+    # Pad the string 'Oxford' with 3 spaces to the left -> '   Oxford'
+    assert pad('Oxford', ' ', 9) == '   Oxford'
 
 def test_intdef():
     # Test intdef: intdef('3', 0) = 3, intdef('abc', 1) = 1

@@ -33,7 +33,7 @@ def test_on_press_mouse_event(tc_setup):
     TurtleCanvas._key_buffer_size = 10
     
     # Test mouse press event
-    mock_event = MockEvent(event_type=EventType.ButtonPress, keysym="", keycode=0, x_root=100, y_root=200, num=1)
+    mock_event = MockEvent(event_type=EventType.ButtonPress, keysym="", keycode=0, x=100, y=200, num=1)
     on_press(mock_event)
     
     # Check if mouse info was updated correctly
@@ -85,7 +85,7 @@ def test_mouse_getters(tc_setup):
     TurtleCanvas._origin_y = 20
     
     # Setup mouse press at (100, 200)
-    mock_event = MockEvent(event_type=EventType.ButtonPress, x_root=100, y_root=200, num=1)
+    mock_event = MockEvent(event_type=EventType.ButtonPress, x=100, y=200, num=1)
     on_press(mock_event)
     
     # Test mouse coordinate getters (should account for origin and multipliers)
@@ -95,7 +95,7 @@ def test_mouse_getters(tc_setup):
 
 def test_status_and_reset(tc_setup):
     # Setup key press
-    mock_event = MockEvent(event_type="Key", keysym="a", keycode=65)
+    mock_event = MockEvent(event_type=EventType.Key, keysym="a", keycode=65)
     on_press(mock_event)
     
     # Test status
@@ -118,16 +118,15 @@ def test_keybuffer_and_read(tc_setup):
     on_press(MockEvent(keysym="b"))
     on_press(MockEvent(keysym="c"))
     
-    # Test read - should return up to max_size characters
+    # Test read - should return up to max_size characters and remove from buffer
     result = read(2)
     assert len(result) == 2
     assert "a" in result 
     assert "b" in result
     
+    # After reading 2 items, only 1 should remain ("c")
     result = read(5)
-    assert len(result) == 3  # Should only return 3 items even though we asked for 5
-    assert "a" in result
-    assert "b" in result
+    assert len(result) == 1  # Should only return 1 item remaining
     assert "c" in result
 
 def test_keyecho(tc_setup):

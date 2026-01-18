@@ -18,16 +18,24 @@ def tc_setup():
             TurtleCanvas._canvas.mainloop = lambda: None
         # Reset state for tests
         TurtleCanvas._history = []
+        TurtleCanvas._direction = 0
+        TurtleCanvas._angles = 360
+        TurtleCanvas._thick = 1
+        TurtleCanvas._colour = "white"
+        TurtleCanvas._pen = True
+        TurtleCanvas._update = True
         yield tc
 
 # Mock Event class to simulate keyboard/mouse events for input testing
 class MockEvent:
-    def __init__(self, event_type=tkinter.EventType.Key, keysym="a", keycode=65, x_root=100, y_root=200, num=1):
+    def __init__(self, event_type=tkinter.EventType.Key, keysym="a", keycode=65, x_root=100, y_root=200, x=100, y=200, num=1):
         self.type = event_type
         self.keysym = keysym
         self.keycode = keycode
         self.x_root = x_root
         self.y_root = y_root
+        self.x = x
+        self.y = y
         self.num = num  # For mouse button number
 
 # Class that mocks the turtle canvas (for monkeypatching)

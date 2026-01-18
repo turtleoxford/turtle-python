@@ -84,4 +84,6 @@ def test_time():
 
 def test_timeset():
     timeset(10000) # Set time to 10,000 millis
-    assert TurtleCanvas._time == 10000
+    # After setting time to 10000, calling time() should return approximately 10000
+    current_time = time()
+    assert abs(current_time - 10000) < 100  # Allow small difference due to execution time

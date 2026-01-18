@@ -577,27 +577,37 @@ def test_fmove_fail(temp_file):
 def test_fcopy(temp_file, tmp_path):
     file_handle = fopen(temp_file, 1)
     
+    # Create destination file path
+    copy_path = temp_file + ".copy"
+    
+    # Open destination file for writing
+    dest_handle = fopen(copy_path, 3)
+    
     # Copy the file
-    copy_handle = fcopy(file_handle)
-    assert copy_handle is not None
+    success = fcopy(file_handle, dest_handle)
+    assert success is True
+    
+    # Close both files
+    fclose(file_handle)
+    fclose(dest_handle)
     
     # Original file should still exist
     assert os.path.exists(temp_file)
     
-    # Copy file should have a .copy extension
-    copy_path = temp_file + ".copy"
+    # Copy file should exist
     assert os.path.exists(copy_path)
     
-    # Content should be the same
-    original_content = fread(file_handle)
-    frestart(file_handle)  # Reset file position
+    # Verify content is the same
+    file_handle = fopen(temp_file, 1)
+    dest_handle = fopen(copy_path, 1)
     
-    copy_content = fread(copy_handle)
+    original_content = fread(file_handle)
+    copy_content = fread(dest_handle)
     assert copy_content == original_content
     
     # Clean up
     fclose(file_handle)
-    fclose(copy_handle)
+    fclose(dest_handle)
     os.remove(copy_path)
 
 def test_fremove(tmp_path):
@@ -639,8 +649,11 @@ def test_complex_file_operations(tmp_path):
     fclose(file_handle)
     
     # Copy file
+    copy_path = file_path + ".copy"
     file_handle = fopen(file_path, 1)
-    copy_handle = fcopy(file_handle)
+    copy_handle = fopen(copy_path, 3)
+    success = fcopy(file_handle, copy_handle)
+    assert success is True
     fclose(file_handle)
     fclose(copy_handle)
     

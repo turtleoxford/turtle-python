@@ -54,17 +54,17 @@ def test_right(tc_setup):
     # Set direction to 0
     TurtleCanvas._direction = 0
 
-    # Test right: right(90) should set the direction to 180
+    # Test right: right(90) should set the direction to 270
     right(90)
-    assert TurtleCanvas._direction == 180
+    assert TurtleCanvas._direction == 270
 
 def test_left(tc_setup):
     # Set direction to 0
     TurtleCanvas._direction = 0
 
-    # Test left: left(90) should set the direction to 180
+    # Test left: left(90) should set the direction to 90
     left(90)
-    assert TurtleCanvas._direction == 180
+    assert TurtleCanvas._direction == 90
 
 def test_direction(tc_setup):
     TurtleCanvas._angles = 360

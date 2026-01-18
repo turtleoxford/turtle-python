@@ -37,8 +37,8 @@ def test_colour_to_str_with_tuple():
     # For (16, 32, 48) -> "#102030"
     assert colour_to_str((16, 32, 48)) == "#102030"
     
-    # For (255, 0, 0) -> "#ff00"
-    assert colour_to_str((255, 0, 0)) == "#ff00"
+    # For (255, 0, 0) -> "#ff0000"
+    assert colour_to_str((255, 0, 0)) == "#ff0000"
 
 def test_colour_to_str_with_int():
     # 255 -> "#0000ff"
