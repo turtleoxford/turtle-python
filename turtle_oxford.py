@@ -3,6 +3,7 @@ Turtle Oxford - a python library for the Oxford Turtle System
 """
 
 from contextlib import contextmanager
+import functools
 import logging
 import math
 import os
@@ -10,10 +11,9 @@ import shutil
 from PIL import ImageColor
 from time import sleep
 from tkinter import *
-from typing import (TypeAlias, IO)
+from typing import IO, List, Tuple, Union, Optional, Any, Dict
 from constants import *
 import random
-import string
 import sys
 from datetime import datetime
 import glob
@@ -29,13 +29,13 @@ class TurtleCanvas:
     _y: int = 0
     _thick: int = 1
     _colour: str = "white"
-    _history: list[tuple[int, int]] = []
+    _history: List[Tuple[int, int]] = []
     _old_turtle = []
-    _time: int = datetime.now()
+    _time = datetime.now()
     # Canvas vars
-    _root: Tk | None = None
-    _canvas: Canvas | None = None
-    _home: tuple[int, int] = 0, 0
+    _root: Optional[Tk] = None
+    _canvas: Optional[Canvas] = None
+    _home: Tuple[int, int] = 0, 0
     _origin_x: int = 0
     _origin_y: int = 0
     _pen: bool = True
@@ -49,15 +49,15 @@ class TurtleCanvas:
     _key_sym: str = ""
     _kshift: int = 128
     # Possible values: +kshift, -kshift (pressed and released respectively)
-    _pressed_keys: dict[str, int] = {}
+    _pressed_keys: Dict[str, int] = {}
     _mousex: int = -1
     _mousey: int = -1
     # Search vars
-    _dir_search_results: list[str] = []
-    _file_search_results: list[str] = []
+    _dir_search_results: List[str] = []
+    _file_search_results: List[str] = []
     # Key buffer vars
     _key_buffer: list = []
-    _key_buffer_size: int = 0
+    _key_buffer_size: int = 5
     _key_echo: bool = False
 
     def create(
@@ -68,13 +68,9 @@ class TurtleCanvas:
         """
         Create a new canvas with a new Turtle.
 
-        :param origin_x: the x coordinate of the origin of the canvas (Default: 0)
-        :type origin_x: int
-        :param origin_y: the y coordinate of the origin of the canvas (Default: 0)
-        :type origin_y: int
-        :param width: the width of the canvas (Default: 500)
+        :param width: width of the canvas (Default: 500)
         :type width: int
-        :param height: the height of the canvas (Default: 500)
+        :param height: height of the canvas (Default: 500)
         :type height: int
         """
         TurtleCanvas._width = width
@@ -98,6 +94,7 @@ class TurtleCanvas:
         TurtleCanvas._canvas.bind("<KeyRelease>", on_release)
         TurtleCanvas._canvas.bind("<ButtonPress>", on_press)
         TurtleCanvas._canvas.bind("<ButtonRelease>", on_release)
+        TurtleCanvas._canvas.bind("<Motion>", on_move)
 
         self._halt.bind("<ButtonRelease>", halt)
 
@@ -115,11 +112,11 @@ class TurtleCanvas:
 
 def _scale_x(x: int) -> float:
     """
-    Helper function. Scales the x coordinate to the canvas resolution.
+    Helper function. Scales the x-coordinate to the canvas resolution.
 
-    :param x: the x coordinate to be scaled
+    :param x: the x-coordinate to be scaled
     :type x: int
-    :return: the scaled x coordinate
+    :return: the scaled x-coordinate
     :rtype: float
     """
 
@@ -127,12 +124,12 @@ def _scale_x(x: int) -> float:
 
 def _scale_y(y: int) -> float:
     """
-    Helper function. Scales the y coordinate to the canvas resolution.
+    Helper function. Scales the y-coordinate to the canvas resolution.
 
-    :param y: the y coordinate to be scaled
+    :param y: the y-coordinate to be scaled
     :type y: int
 
-    :return: the scaled y coordinate
+    :return: the scaled y-coordinate
     :rtype: float
     """
 
@@ -156,10 +153,6 @@ def turtle_canvas(width: int = 500, height: int = 500):
     """
     Context manager that creates a canvas at the start and halts at the end.
 
-    :param origin_x: the x coordinate of the origin of the canvas (Default: 0)
-    :type origin_x: int
-    :param origin_y: the y coordinate of the origin of the canvas (Default: 0)
-    :type origin_y: int
     :param width: the width of the canvas (Default: 500)
     :type width: int
     :param height: the height of the canvas (Default: 500)
@@ -189,16 +182,16 @@ def noupdate():
     """
     TurtleCanvas._update = False
 
+def canvas(x_origin: int, y_origin: int, x: int, y: int):
+    """Set the resolution of the canvas to x by y.
 
-def canvas(x_origin: int, y_origin:int, x: int, y: int):
-    """ Set the resolution of the canvas to x by y
-    :param x_origin: x coordinate of the top left corner
+    :param x_origin: the x-coordinate of the origin
     :type x_origin: int
-    :param y_origin: y coordinate of the top left corner
-    :type x_origin: int
-    :param x: resolution on the x axis
+    :param y_origin: the y-coordinate of the origin
+    :type y_origin: int
+    :param x: the width of the canvas
     :type x: int
-    :param y: resolution on the y axis
+    :param y: the height of the canvas
     :type y: int
     """
     TurtleCanvas._x_multiplier = TurtleCanvas._width / x
@@ -225,6 +218,7 @@ def move(func: callable) -> callable:
     :return: modified function with the boilerplate added
     :rtype: callable
     """
+    @functools.wraps(func)
     def inner(*args, **kwargs):
         val = func(*args, **kwargs)
         TurtleCanvas._history.append((TurtleCanvas._x, TurtleCanvas._y))
@@ -232,17 +226,16 @@ def move(func: callable) -> callable:
 
     return inner
 
-
 def remember():
     """
-    Add the current coordinates to the history of the turtle
+    Add the current coordinates to the history of the turtle.
     """
     TurtleCanvas._history.append((TurtleCanvas._x, TurtleCanvas._y))
 
 
 def forget(n: int):
     """
-    Forget the last n positions of the turtle
+    Forget the last n positions of the turtle.
 
     :param n: number of positions to forget
     :type n: int
@@ -254,16 +247,16 @@ def forget(n: int):
 # Change coordinates
 def home():
     """
-    Move the turtle to the center of the canvas
+    Move the turtle to the centre of the canvas
     """
     setxy(*TurtleCanvas._home)
 
 
 @move
 def setx(x: int):
-    """Set the x coordinate
+    """Set the x-coordinate
 
-    :param x: the new x coordinate of the turtle
+    :param x: the new x-coordinate of the turtle
     :type x: int
     """
     TurtleCanvas._x = x
@@ -271,9 +264,9 @@ def setx(x: int):
 
 @move
 def sety(y: int):
-    """Set the y coordinate
+    """Set the y-coordinate
 
-    :param y: the new y coordinate of the turtle
+    :param y: the new y-coordinate of the turtle
     :type y: int
     """
     TurtleCanvas._y = y
@@ -283,9 +276,9 @@ def sety(y: int):
 def setxy(x: int, y: int):
     """Set both coordinates
 
-    :param x: the new x coordinate of the turtle
+    :param x: the new x-coordinate of the turtle
     :type x: int
-    :param y: the new y coordinate of the turtle
+    :param y: the new y-coordinate of the turtle
     :type y: int
     """
     TurtleCanvas._x = x
@@ -295,12 +288,12 @@ def setxy(x: int, y: int):
 # Change colour
 
 
-def colour_to_int(colour: tuple[int, int, int] | int | str) -> int:
+def colour_to_int(colour: Union[Tuple[int, int, int], int, str]) -> int:
     """Convert the colour parameter from any acceptable format to an integer (from 0 to 255).
 
-    :param colour: colour to be converted
+    :param colour: colour to be converted, as either an (r, g, b) tuple, a rgb hex integer or a string.
     :type colour: tuple[int, int, int] | int | str
-    :return: the integer format of the colour
+    :return: the integer representation of the colour
     :rtype: int
     """
     if isinstance(colour, int):
@@ -312,10 +305,10 @@ def colour_to_int(colour: tuple[int, int, int] | int | str) -> int:
         return (r << 16) + (g << 8) + b
 
 
-def colour_to_str(colour: tuple[int, int, int] | int | str) -> str:
+def colour_to_str(colour: Union[Tuple[int, int, int], int, str]) -> str:
     """Convert the colour parameter form any acceptable format to a string.
 
-    :param colour: colour to be converted
+    :param colour: colour to be converted, as either an (r, g, b) tuple, a rgb hex integer or a string.
     :type colour: tuple[int, int, int] | int | str
     :return: the string format of the colour
     :rtype: str
@@ -324,17 +317,17 @@ def colour_to_str(colour: tuple[int, int, int] | int | str) -> str:
         return colour
     elif isinstance(colour, tuple):
         r, g, b = colour
-        # hex strings start with 0x so we strip that to create the colour hex
-        return f"#{hex(r)[2:]}{hex(g)[2:]}{hex(b)[2:]}"
+        # Format each component as zero-padded 2-digit hex
+        return f"#{r:02x}{g:02x}{b:02x}"
     elif isinstance(colour, int):
         return f"#{colour.to_bytes(3, 'big').hex()}"
 
 
-def colour(new_colour: tuple[int, int, int] | int | str):
+def colour(new_colour: Union[Tuple[int, int, int], int, str]):
     """Set the new colour of the turtle.
 
     :param new_colour: new colour, as either an (r, g, b) tuple, a rgb hex integer or a string
-    :type new_colour: tuple[int, int, int] | int | str
+    :type new_colour: Union[Tuple[int, int, int], int, str]
     """
     TurtleCanvas._colour = colour_to_str(new_colour)
 
@@ -343,7 +336,7 @@ def colour(new_colour: tuple[int, int, int] | int | str):
 
 
 def thickness(new_thickness: int):
-    """Set the thickness of the pen
+    """Set the thickness of the pen.
 
     :param new_thickness: new thickness of the pen.
     :type new_thickness: int
@@ -358,7 +351,7 @@ def penup():
 
 
 def pendown():
-    """Put down the pen, all movement functions now produce drawings.
+    """Put down the pen, all movement functions produce drawings.
     """
     TurtleCanvas._pen = True
 
@@ -366,7 +359,7 @@ def pendown():
 def pause(duration: int):
     """Pause `duration` milliseconds.
 
-    :param duration: number milliseconds to pause
+    :param duration: number of milliseconds to pause.
     :type duration: int
     """
     sleep(duration / 1000)
@@ -376,53 +369,51 @@ def pause(duration: int):
 # Change direction
 
 
-def right(degrees: int):
-    """Turn right.
+def right(angle_units: int):
+    """Turn right by a given number of angle units.
 
-    :param degrees: number of degrees to turn right
-    :type degrees: int
+    :param angle_units: number of angle units to turn right
+    :type angle_units: int
     """
-    TurtleCanvas._direction = (TurtleCanvas._direction - _degs_to_angle_units(degrees)) % 360
+    TurtleCanvas._direction = (TurtleCanvas._direction - angle_units) % TurtleCanvas._angles
 
 
-def left(degrees: int):
+def left(angle_units: int):
     """Turn left.
 
-    :param degrees: number of degrees to turn left
-    :type degrees: int
+    :param angle_units: number of angle units to turn left
+    :type angle_units: int
     """
-    TurtleCanvas._direction = (TurtleCanvas._direction + _degs_to_angle_units(degrees)) % 360
+    TurtleCanvas._direction = (TurtleCanvas._direction + angle_units) % TurtleCanvas._angles
 
 
-def direction(degrees: int):
-    """Turtle changes direction to face this number of degrees.
+def direction(angle_units: int):
+    """Turtle changes direction to face this number of angle units.
 
-    :param degrees: number of degrees that indicate a direction to face
-    :type degrees: int
+    :param angle_units: number of angle units that indicate a direction to face
+    :type angle_units: int
     """
-    TurtleCanvas._direction = _degs_to_angle_units(degrees)
+    TurtleCanvas._direction = angle_units % TurtleCanvas._angles
 
+def angles(angle_units: int):
+    """Change the number of angle units in a circle.
 
-# There is little actual support for the custom angles
-def angles(degrees: int):
-    """Change the number of degrees in a circle.
-
-    :param degrees: number of degrees in a circle 
-    :type degrees: int
+    :param angle_units: number of angle units in a circle 
+    :type angle_units: int
     """
-    TurtleCanvas._angles = degrees
+    TurtleCanvas._angles = angle_units
 
 
 def turnxy(x: int, y: int):
     """Turn to face the point (x, y) on the canvas.
 
-    :param x: the x coordinate of the point to face
+    :param x: the x-coordinate of the point to face
     :type x: int
-    :param y: the y coordinate of the point to face
+    :param y: the y-coordinate of the point to face
     :type y: int
     """
     # if y/x = tan t, then t = arctan(y/x)
-    TurtleCanvas._direction = math.degrees(math.atan(y / x))
+    TurtleCanvas._direction = _degs_to_angle_units(math.degrees(math.atan(y / x)))
 
 
 # Draw shapes
@@ -436,6 +427,7 @@ def draw(func: callable) -> callable:
     :return: the drawing function with the boilerplate added
     :rtype: callable
     """
+    @functools.wraps(func)
     def inner(*args, **kwargs) -> int:
         id: int = func(*args, **kwargs)
         if TurtleCanvas._update:
@@ -446,23 +438,26 @@ def draw(func: callable) -> callable:
     return inner
 
 
-def forward(distance: int) -> int:
-    """Move forward.
+def forward(distance: float) -> int:
+    """Move the turtle forward a given distance.
+
     :param distance: distance to travel forward.
-    :type distance: int
+    :type distance: float
     :return: id of the shape drawn, if the pen is down, else -1.
     :rtype: int
     """
+    angle = math.radians(TurtleCanvas._direction / TurtleCanvas._angles * 360)
     return movexy(
-        -distance * math.sin(math.radians(TurtleCanvas._direction)),
-        -distance * math.cos(math.radians(TurtleCanvas._direction)),
+        -distance * math.sin(angle),
+        -distance * math.cos(angle),
     )
 
 
-def back(distance: int) -> int:
-    """Move back.
+def back(distance: float) -> int:
+    """Move the turtle back a given distance.
+
     :param distance: distance to travel back.
-    :type distance: int
+    :type distance: float
     :return: id of the shape drawn, if the pen is down, else -1.
     :rtype: int
     """
@@ -470,14 +465,14 @@ def back(distance: int) -> int:
 
 
 @move
-def movexy(x: int, y: int) -> int:
-    """Move to point (x, y).
+def movexy(x: float, y: float) -> int:
+    """Move the turtle by (x, y).
 
-    :param x: x coordinate of the destination point
-    :type x: int
-    :param y: y coordinate of the destination point
-    :type y: int
-    :return: id of the shape drawn, if the pen is down, else -1
+    :param x: distance to move on the x-axis
+    :type x: float
+    :param y: distance to move on the y-axis
+    :type y: float
+    :return: id of the shape drawn, if the pen is down, else -1.
     :rtype: int
     """
     new_x = TurtleCanvas._x + x
@@ -492,12 +487,13 @@ def movexy(x: int, y: int) -> int:
 
 
 @move
-def drawxy(x: int, y: int) -> int:
-    """Move to point (x, y), drawing a line regadless of the pen position.
-    :param x: x coordinate of the destination point
-    :type x: int
-    :param y: y coordinate of the destination point
-    :type y: int
+def drawxy(x: float, y: float) -> int:
+    """Move to point (x, y), drawing a line regardless of the pen position.
+
+    :param x: x-coordinate of the destination point
+    :type x: float
+    :param y: y-coordinate of the destination point
+    :type y: float
     :return: id of the shape drawn
     :rtype: int
     """
@@ -511,8 +507,7 @@ def drawxy(x: int, y: int) -> int:
 
 @draw
 def _draw_line(x: int, y: int, new_x: int, new_y: int):
-    """Private. Helper class used to draw a line between two points.
-    """
+    """Private. Helper function used to draw a line between two points."""
     return TurtleCanvas._canvas.create_line(
         _scale_x(x),
         _scale_y(y),
@@ -551,9 +546,9 @@ def circle(size: int) -> int:
 def ellipse(xradius: int, yradius: int) -> int:
     """Draw the outline of an ellipse.
 
-    :param xradius: radius of the ellipse on the x coordinate
+    :param xradius: radius of the ellipse on the x-coordinate
     :type xradius: int
-    :param yradius: radius of the ellipse on the y coordinate
+    :param yradius: radius of the ellipse on the y-coordinate
     :type yradius: int
     :return: id of the shape drawn
     :rtype: int
@@ -565,11 +560,11 @@ def ellipse(xradius: int, yradius: int) -> int:
 def ellblot(xradius: int, yradius: int) -> int:
     """Draw a filled ellipse.
 
-    :param xradius: _description_
+    :param xradius: radius of the ellipse on the x-coordinate
     :type xradius: int
-    :param yradius: _description_
+    :param yradius: radius of the ellipse on the y-coordinate
     :type yradius: int
-    :return: _description_
+    :return: id of the shape drawn
     :rtype: int
     """
     return _oval(xradius, yradius, fill=True)
@@ -601,15 +596,15 @@ def _oval(xradius: int, yradius: int, border: bool = False, fill: bool = False) 
 
 
 @draw
-def pixset(x: int, y: int, colour: int) -> int:
+def pixset(x: int, y: int, colour: Union[int, str, Tuple[int, int, int]]) -> int:
     """Set the colour of the pixel at the (x, y) coordinates.
 
-    :param x: the x coordinate of the pixel
+    :param x: the x-coordinate of the pixel
     :type x: int
-    :param y: the y coordinate of the pixel
+    :param y: the y-coordinate of the pixel
     :type y: int
-    :param colour: the new colour of the pixel 
-    :type colour: int
+    :param colour: the new colour of the pixel
+    :type colour: int | str | tuple[int, int, int]
     :return: the id of the pixel
     :rtype: int
     """
@@ -624,7 +619,7 @@ def pixset(x: int, y: int, colour: int) -> int:
 
 
 @draw
-def box(x: int, y: int, colour: int, border: bool) -> int:
+def box(x: int, y: int, colour: Union[int, str, Tuple[int, int, int]], border: bool) -> int:
     """Draw a rectangle.
 
     :param x: the width of the rectangle
@@ -632,7 +627,7 @@ def box(x: int, y: int, colour: int, border: bool) -> int:
     :param y: the height of the rectangle
     :type y: int
     :param colour: the colour of the inside of the rectangle
-    :type colour: int
+    :type colour: int | str | tuple[int, int, int]
     :param border: true if the rectangle should have a border
     :type border: bool
     :return: id of the shape drawn
@@ -654,11 +649,21 @@ def polyline(n: int):
 
     :param n: the number of points to consider
     :type n: int
+    :return: id of the last segment drawn, or -1 if fewer than two points
+    :rtype: int
     """
-    x, y = TurtleCanvas._x, TurtleCanvas._y
-    for (old_x, old_y) in TurtleCanvas._history[-n:]:
-        id = _draw_line(x, y, old_x, old_y)
-        x, y = old_x, old_y
+    history_slice = TurtleCanvas._history[-n:]
+    
+    # If there's nothing to draw, exit
+    if len(history_slice) < 2:
+        return -1
+    
+    x, y = history_slice[0]
+    
+    for (new_x, new_y) in history_slice[1:]:
+        id = _draw_line(x, y, new_x, new_y)
+        x, y = new_x, new_y
+    
     return id
 
 
@@ -668,6 +673,8 @@ def polygon(n: int):
 
     :param n: the number of points in the polygon
     :type n: int
+    :return: id of the polygon drawn
+    :rtype: int
     """
     adjusted_points = [(_scale_x(x), _scale_y(y)) for (x, y) in TurtleCanvas._history[-n:]]
     return TurtleCanvas._canvas.create_polygon(
@@ -677,15 +684,15 @@ def polygon(n: int):
 
 @draw
 def display(text: str, font: str = "Helvetica", size: int = 12) -> int:
-    """Display the text on the canvas.
+    """Display the given text on the canvas.
 
-    :param text: text to be displyed
+    :param text: text to be displayed
     :type text: str
     :param font: font of the text, defaults to "Helvetica"
     :type font: str, optional
     :param size: font size, defaults to 12
     :type size: int, optional
-    :return: id of the shape of the text
+    :return: id of the text object on the canvas
     :rtype: int
     """
     font_size = size * TurtleCanvas._x_multiplier
@@ -701,11 +708,11 @@ def display(text: str, font: str = "Helvetica", size: int = 12) -> int:
 
 
 @draw
-def blank(colour) -> int:
+def blank(colour: Union[int, str, Tuple[int, int, int]]) -> int:
     """Fill the canvas with a new colour.
 
     :param colour: new colour of the canvas
-    :type colour: string or int
+    :type colour: str | int | tuple[int, int, int]
     :return: id of the shape of the canvas
     :rtype: int
     """
@@ -722,15 +729,16 @@ def blank(colour) -> int:
 
 @draw
 # If boundary is a negative number, then any colour is acceptable
-def fill(x: int, y: int, boundary: int | str):
+def fill(x: int, y: int, boundary: Union[int, str]):
     """Fill the area of the canvas with the current colour.
 
-    :param x: x coordinate of the starting point
+    :param x: x-coordinate of the starting point
     :type x: int
-    :param y: y coordinate of the starting point
+    :param y: y-coordinate of the starting point
     :type y: int
     :param boundary: colour of the border of the area to be filled
     :type boundary: int | str
+    :return: None
     """
     if isinstance(boundary, str):
         boundary = colour_to_int(boundary)
@@ -738,6 +746,7 @@ def fill(x: int, y: int, boundary: int | str):
 
 # get information about the canvas
 def pixcol(x: int, y: int) -> int:
+    """Return the colour of the pixel at (x, y) as a 24-bit integer."""
     ids = TurtleCanvas._canvas.find_overlapping(
         _scale_x(x),
         _scale_y(y),
@@ -756,10 +765,20 @@ def pixcol(x: int, y: int) -> int:
 
 
 def get_key_sym() -> str:
+    """Return the symbol of the last key or mouse button pressed.
+    
+    :return: the key symbol
+    :rtype: str
+    """
     return TurtleCanvas._key_sym
 
 
 def get_key_code() -> int:
+    """Return the code of the last key or mouse button pressed.
+
+    :return: the key code
+    :rtype: int
+    """
     return TurtleCanvas._key_code
 
 
@@ -791,8 +810,8 @@ def on_press(event: Event):
         TurtleCanvas._key_sym = "mouse" + str(event.num)
         TurtleCanvas._key_code = 128 + event.num
         TurtleCanvas._pressed_keys["mouse"] = TurtleCanvas._kshift
-        TurtleCanvas._pressed_keys["clickx"] = event.x_root
-        TurtleCanvas._pressed_keys["clicky"] = event.y_root
+        TurtleCanvas._pressed_keys["clickx"] = event.x
+        TurtleCanvas._pressed_keys["clicky"] = event.y
         TurtleCanvas._pressed_keys["click"] = TurtleCanvas._key_sym
     TurtleCanvas._pressed_keys[TurtleCanvas._key_sym] = TurtleCanvas._kshift
     TurtleCanvas._pressed_keys["mousekey"] = TurtleCanvas._kshift
@@ -828,11 +847,22 @@ def on_release(event: Event):
         TurtleCanvas._pressed_keys["click"] *= -1
     TurtleCanvas._pressed_keys["mousekey"] *= -1
 
-def detect(key_sym, timeout) -> str:
+def on_move(event: Event):
+    """Handle mouse move events.
+    
+    Updates the internal state of the mouse position.
+    
+    :param event: the event triggered by a mouse move
+    :type event: Event
+    """
+    TurtleCanvas._mousex = event.x
+    TurtleCanvas._mousey = event.y
+
+def detect(key_sym: str, timeout: int) -> str:
     """Wait for a specific key or mouse button to be pressed.
-    
+
     Waits for the specified key symbol to be pressed, or until the timeout period expires.
-    
+
     :param key_sym: the key symbol to detect
     :type key_sym: str
     :param timeout: the maximum time to wait in milliseconds, or 0 for no timeout
@@ -840,9 +870,7 @@ def detect(key_sym, timeout) -> str:
     :return: the key symbol that was pressed, or an empty string if timeout occurred
     :rtype: str
     """
-    rounds = timeout / 100
-    if timeout == 0:
-        rounds = maxint()
+    rounds = maxint() if timeout == 0 else math.ceil(timeout / 100)
     status = TurtleCanvas._pressed_keys.get(key_sym, 0)
     TurtleCanvas._pressed_keys[key_sym] = 0
     while not TurtleCanvas._pressed_keys.get(key_sym) and rounds > 0:
@@ -874,11 +902,67 @@ def get_clicky() -> int:
     """
     return int(TurtleCanvas._pressed_keys["clicky"] / TurtleCanvas._y_multiplier + TurtleCanvas._origin_y)
 
-def get_click() -> int:
-    """Return the mouse button that was clicked.
+def get_mousex() -> int:
+    """Return the current x-coordinate of the mouse.
     
-    :return: the identifier of the mouse button that was clicked
+    The coordinate is scaled according to the canvas resolution.
+    
+    :return: the current x-coordinate of the mouse
     :rtype: int
+    """
+    return int(TurtleCanvas._mousex / TurtleCanvas._x_multiplier + TurtleCanvas._origin_x)
+
+def get_mousey() -> int:
+    """Return the current y-coordinate of the mouse.
+    
+    The coordinate is scaled according to the canvas resolution.
+    
+    :return: the current y-coordinate of the mouse
+    :rtype: int
+    """
+    return int(TurtleCanvas._mousey / TurtleCanvas._y_multiplier + TurtleCanvas._origin_y)
+
+
+def get_lmouse() -> int:
+    """Return the status of the left mouse button.
+    
+    :return: > 0 if pressed, < 0 if released
+    :rtype: int
+    """
+    return TurtleCanvas._pressed_keys.get("mouse1", -1)
+
+
+def get_rmouse() -> int:
+    """Return the status of the right mouse button.
+    
+    :return: > 0 if pressed, < 0 if released
+    :rtype: int
+    """
+    return TurtleCanvas._pressed_keys.get("mouse3", -1)
+
+
+def turtx() -> int:
+    """Return the x-coordinate of the turtle.
+    
+    :return: the x-coordinate
+    :rtype: int
+    """
+    return int(TurtleCanvas._x)
+
+
+def turty() -> int:
+    """Return the y-coordinate of the turtle.
+    
+    :return: the y-coordinate
+    :rtype: int
+    """
+    return int(TurtleCanvas._y)
+
+def get_click() -> str:
+    """Return the mouse button that was clicked.
+
+    :return: the identifier of the mouse button that was clicked
+    :rtype: str
     """
     return TurtleCanvas._pressed_keys["click"]
 
@@ -910,7 +994,7 @@ def reset(key_sym: str):
 
 
 # turtle operations
-def new_turtle(arr: list[int]):
+def new_turtle(arr: List[int]):
     """Create a new turtle and save the current turtle state.
     
     Saves the current turtle state (position, direction, thickness, colour) and
@@ -969,7 +1053,7 @@ def rgb(n: int) -> int:
     return colour_list[n]
 
 
-def mixcols(col1: int | str, col2: int | str, prop1: int, prop2: int) -> int:
+def mixcols(col1: Union[int, str], col2: Union[int, str], prop1: int, prop2: int) -> int:
     """Mix two colours in the given proportions.
     
     :param col1: the first colour to mix
@@ -1041,7 +1125,7 @@ def delete(s: str, idx: int, l: int) -> str:
     return s[:idx] + s[idx + l:]
 
 
-def pad(s: str, padding: string, length: int) -> str:
+def pad(s: str, padding: str, length: int) -> str:
     """Pad a string with a specified character to a given length.
 
     :param s: the original string
@@ -1053,8 +1137,7 @@ def pad(s: str, padding: string, length: int) -> str:
     :return: the padded string
     :rtype: str
     """
-
-    return s.ljust(length, padding)
+    return s.rjust(length, padding)
 
 
 def intdef(s, default: int) -> int:
@@ -1109,15 +1192,25 @@ def qint(s: str, mult: int, default: int) -> int:
         return default
     
 def qval(s: str, mult: int, default: int) -> int:
+    """Convert a string to a float, multiply by a factor, and round it, returning a default on failure.
+
+    :param s: the string to convert
+    :type s: str
+    :param mult: the multiplier to apply to the result
+    :type mult: int
+    :param default: the default value to return if conversion fails
+    :type default: int
+    :return: the converted integer value or the default value
+    :rtype: int
+    """
     try:
         return round(float(s) * mult)
     except ValueError:
         return default
-
 def halt(e: Event = None):
+    """Stop the currently-executing programme."""
     TurtleCanvas._canvas.mainloop()
     exit(0)
-
 def cos(x: float) -> float:
     """
     Return the cosine of x.
@@ -1126,7 +1219,7 @@ def cos(x: float) -> float:
     :type x: float
 
     :return: the cosine of x.
-    :rtype float
+    :rtype: float
     """
     return math.cos(math.radians(x / TurtleCanvas._angles * 360))
 
@@ -1138,7 +1231,7 @@ def acos(x: float) -> float:
     :type x: float
 
     :return: the arc cosine of x in angle units.
-    :rtype float
+    :rtype: float
     """
     return _degs_to_angle_units(math.degrees(math.acos(x)))
 
@@ -1150,7 +1243,7 @@ def sin(x: float) -> float:
     :type x: float
 
     :return: the sine of x.
-    :rtype float
+    :rtype: float
     """
     return math.sin(math.radians(x / TurtleCanvas._angles * 360))
 
@@ -1162,7 +1255,7 @@ def asin(x: float) -> float:
     :type x: float
 
     :return: the arc sine of x in angle units.
-    :rtype float
+    :rtype: float
     """
     return _degs_to_angle_units(math.degrees(math.asin(x)))
 
@@ -1174,7 +1267,7 @@ def tan(x: float) -> float:
     :type x: float
 
     :return: the tangent of x.
-    :rtype float
+    :rtype: float
     """
     return math.tan(math.radians(x / TurtleCanvas._angles * 360))
 
@@ -1186,7 +1279,7 @@ def atan(x: float) -> float:
     :type x: float
 
     :return: the arc tangent of x in angle units.
-    :rtype float
+    :rtype: float
     """
     return _degs_to_angle_units(math.degrees(math.atan(x)))
 
@@ -1491,10 +1584,11 @@ def sqrt(x: float) -> float:
     return math.sqrt(x)
 
 def pi() -> float:
+    """Return the mathematical constant Pi."""
     return math.pi
 
-file: TypeAlias = IO
-def fopen(path: str, mode: int) -> file:
+file = IO
+def fopen(path: str, mode: int) -> Optional[file]:
     """Open a file with the specified mode.
     Mode 1 = read
     Mode 2 = append
@@ -1504,24 +1598,26 @@ def fopen(path: str, mode: int) -> file:
     :type path: str
     :param mode: the mode to open the file in
     :type mode: int
-    :return: the file object
-    :rtype: file
+    :return: the file object or None if opening failed
+    :rtype: Optional[file]
     """
-
-    if mode == 1:
-        return open(path, "r")
-    elif mode == 2:
-        return open(path, "a")
-    elif mode == 3:
-        return open(path, "w")
-    else:
-        raise ValueError("Invalid mode")
+    try:
+        if mode == 1:
+            return open(path, "r")
+        elif mode == 2:
+            return open(path, "a")
+        elif mode == 3:
+            return open(path, "w")
+        else:
+            raise ValueError("Invalid mode")
+    except OSError:
+        return None
 
 def fclose(file_to_close: file):
-    """ Close the file
+    """Close the file.
 
-    :param file_handle: the file object to close
-    :type file_handle: file
+    :param file_to_close: the file object to close
+    :type file_to_close: file
     """
     file_to_close.close()
 
@@ -1546,23 +1642,52 @@ def fmove(file_to_move: file, new_path: str) -> bool:
         return False
 
 
-def fcopy(file_to_copy: file) -> file:
-    """Copy the file to a new file object
+def frename(old_path: str, new_path: str) -> bool:
+    """Rename a file from old_path to new_path.
 
-    :param file_to_copy: the file object to copy
-    :type file_to_copy: file
-    :return: a new file object that is a copy of the original
-    :rtype: file
+    :param old_path: the current path to the file
+    :type old_path: str
+    :param new_path: the new path for the file
+    :type new_path: str
+    :return: True if the rename operation was successful, False otherwise
+    :rtype: bool
     """
     try:
-        file_name = file_to_copy.name
-        mode = file_to_copy.mode if hasattr(file_to_copy, 'mode') else 'r'
-        file_to_copy.flush()
-        copy_name = file_name + ".copy"
-        shutil.copy(file_name, copy_name)
-        return open(copy_name, mode)
+        os.rename(old_path, new_path)
+        return True
+    except Exception:
+        return False
+
+
+def fexists(path: str) -> bool:
+    """Check if a file exists at the specified path.
+
+    :param path: the path to the file
+    :type path: str
+    :return: True if the file exists, False otherwise
+    :rtype: bool
+    """
+    return os.path.exists(path)
+
+
+def fcopy(source_file: file, destination_file: file) -> bool:
+    """Copy from source file to destination file
+
+    :param source_file: the file object to copy from
+    :type source_file: file
+    :param destination_file: the file object to copy to
+    :type destination_file: file
+    :return: True if the copy was successful, False otherwise
+    :rtype: bool
+    """
+    try:
+        source_file.flush()
+        destination_file.flush()
+        shutil.copy(source_file.name, destination_file.name)
+        return True
     except Exception as e:
         print(f"Error copying file: {e}")
+        return False
 
 
 def fread(file_to_read: file):
@@ -1584,15 +1709,24 @@ def freadline(file_to_read: file):
     """
     return file_to_read.readline()
 
-def fremove(file_to_remove: file):
-    """Delete the file
+def fremove(file_to_remove: Union[file, str]) -> bool:
+    """Delete the file.
 
-    :param file_to_remove: the file object to delete
-    :type file_to_remove: file
+    :param file_to_remove: the file object or path to delete
+    :type file_to_remove: Union[file, str]
+    :return: True if the delete operation was successful, False otherwise
+    :rtype: bool
     """
-    file_name = file_to_remove.name
-    file_to_remove.close()
-    os.remove(file_name)
+    try:
+        if isinstance(file_to_remove, str):
+            os.remove(file_to_remove)
+        else:
+            file_name = file_to_remove.name
+            file_to_remove.close()
+            os.remove(file_name)
+        return True
+    except Exception:
+        return False
 
 def frestart(file_to_restart: file):
     """Restart the file
@@ -1622,7 +1756,7 @@ def fwriteline(file_to_write: file, data: str):
     """
     file_to_write.write(data + "\n")
 
-def _find_dirs_files(pattern: str) -> list[str]:
+def _find_dirs_files(pattern: str) -> List[str]:
     """Helper function. Finds all instances that match the pattern in the directory
 
     :param pattern: the pattern to match
@@ -1636,11 +1770,11 @@ def _find_dirs_files(pattern: str) -> list[str]:
 """A type alias for a mutable handle to store the index of the found directory or file.
 This is a workaround for the fact that Python does not support mutable integers.
 """
-FindHandle: TypeAlias = list[int]
+FindHandle = List[int]
 
 def finddir(pattern: str, find_handle: FindHandle) -> str:
     """Find the first directory that matches the pattern.
-    Modifies the find_handle tuple to store the index of the handle that was found.
+    Modifies the find_handle list to store the index of the handle that was found.
     
     :param pattern: the pattern to match
     :type pattern: str
@@ -1674,21 +1808,22 @@ def findfirst(pattern: str,  find_handle: FindHandle) -> str:
     find_handle[0] = 1 # Sets index to the second element (for subsequent findnext commands)
     return TurtleCanvas._file_search_results[0]
 
-def findnext(find_handle: list[int]) -> str:
+def findnext(find_handle: List[int]) -> str:
     """Find the next file that matches the pattern.
-    
+
     :param find_handle: the handle to store the index of the file that was found
     :type find_handle: FindHandle
-    :return: the name of the next file that matches the pattern
+    :return: the name of the next file that matches the pattern, or "" if none remain
     :rtype: str
     """
-
     # Fix empty find handle
     if len(find_handle) == 0:
         find_handle.append(0)
 
-    file = TurtleCanvas._file_search_results[find_handle[0]] # Use the files stored in the search results
-    find_handle[0] += 1 # Increment index
+    if find_handle[0] >= len(TurtleCanvas._file_search_results):
+        return ""
+    file = TurtleCanvas._file_search_results[find_handle[0]]  # Use the files stored in the search results
+    find_handle[0] += 1  # Increment index
     return file
 
 def hypot(a: float, b: float) -> float:
@@ -1750,17 +1885,21 @@ def keyecho(on: bool):
     """
     TurtleCanvas._key_echo = on
 
-def read(max_size: int) -> str:
-    """Read a string from the keyboard buffer of the specified size.
+def read(max_size: int) -> List[str]:
+    """Read a list of key symbols from the keyboard buffer of the specified size.
 
-    :param max_size: the maximum size of the string to read
+    :param max_size: the maximum number of keys to read
     :type max_size: int
-    :return: the string read from the keyboard buffer
-    :rtype: str
+    :return: the list of key symbols read from the keyboard buffer
+    :rtype: List[str]
     """
     if len(TurtleCanvas._key_buffer) == 0:
-        return ""
-    return TurtleCanvas._key_buffer[:min(max_size, len(TurtleCanvas._key_buffer))] # Return the first max_size characters
+        return []
+    
+    count = min(max_size, len(TurtleCanvas._key_buffer))
+    result = TurtleCanvas._key_buffer[:count]
+    TurtleCanvas._key_buffer = TurtleCanvas._key_buffer[count:]
+    return result
 
 def mkdir(name: str) -> bool:
     """Create a new directory with the specified name.
@@ -1855,11 +1994,11 @@ def randint(a: int, b: int) -> int:
     return random.randint(a, b)
 
 def randrange(range: int) -> int:
-    """Return a random integer between 0 and range - 1 (exclusive).
+    """Return a random integer between 0 and range - 1 (exclusive of range).
 
     :param range: the upper bound of the random integer
     :type range: int
-    :return: a random integer between 0 and range
+    :return: a random integer between 0 and range - 1
     :rtype: int
     """
     return random.randrange(range)
@@ -1886,6 +2025,6 @@ def timeset(millis: int):
     :param millis: the time to set
     :type millis: int
     """
-    TurtleCanvas._time = millis
+    TurtleCanvas._time = datetime.now() - dt.timedelta(milliseconds=millis)
 
 __module__ = "turtle_oxford"
