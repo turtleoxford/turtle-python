@@ -1,0 +1,30 @@
+# Sphinx build outputs
+build/
+_build/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Documentation build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.pdf
+*.dvi
+*.idx
+*.ilg
+*.ind
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Sphinx auto-generated files
+source/generated/
+
+# OS files
+.DS_Store
+Thumbs.db
