@@ -1,14 +1,13 @@
-.. Turtle Oxford documentation master file, created by
-   sphinx-quickstart on Sun Jan 21 18:14:05 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to Turtle Oxford's documentation!
+Welcome to Turtle Python's documentation!
 =========================================
+
+Turtle Python is a Python implementation of the Turtle Oxford System, a graphics library designed for educational programming. The library provides three variants with different API styles to achieve parity with the original Turtle System and introduce additional features for advanced programmers.
 
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
 
-   usage
+   installation
+   quickstart
    api
+   examples
